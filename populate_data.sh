@@ -1,0 +1,3 @@
+python populate_departments.py
+python populate_studetns.py
+python populate_tcapplications.py
