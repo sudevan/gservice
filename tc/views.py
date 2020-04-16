@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import TcApplicationForm
+from .forms import TcApplicationForm,TcIssueForm
 from django.contrib.auth.decorators import login_required
 from .models import TcApplication,TcIssue
 from reportlab.platypus import SimpleDocTemplate
@@ -9,6 +9,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus.tables import Table, TableStyle
 from reportlab.lib import colors
 from admin_tools.models import Classroom
+from reportlab.platypus import Paragraph
 cm = 2.54
 
 # Create your views here.
@@ -52,7 +53,7 @@ def tc_application_view(request,pk):
 
     doc = SimpleDocTemplate(response)
     sample_style_sheet = getSampleStyleSheet()
-    from reportlab.platypus import Paragraph
+   
 
     doc.build(elements)
     title_style = sample_style_sheet['Heading2']
@@ -116,3 +117,14 @@ def tc_application_view(request,pk):
 
     doc.build(elements) 
     return response
+def tc_issue_view(request,pk):
+    if request.method == 'POST':
+        pass
+    else:
+        initial = {'tcnumber':'123/2020','name':'sudevan','guardianName':'test'}
+        form = TcIssueForm(initial = initial)
+        context = {'form': form}
+        return render(request, 'tc/apply_tc.html', context)
+
+def print_tc(applicationform):
+    pass

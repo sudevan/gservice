@@ -23,7 +23,7 @@
           </th>
           <th scope="row">
             <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
-              {{ tcapplication.student.registration_number}}
+              {{ tcapplication.student.admission_number}}
           </th>
           <th scope="row">
             <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
@@ -34,7 +34,7 @@
               {{ tcapplication.activeclassroom}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
+            <a href="{%url 'tc:tc_issue_view' pk=tcapplication.id %}">
               issue </a>
           </th>
         </tr>

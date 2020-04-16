@@ -29,6 +29,9 @@ class TcApplication(models.Model):
     lastAttendedDate = models.DateField(auto_now=True)
     totalWorkingDay = models.IntegerField(default=0)
     attendance = models.IntegerField(default=0)
+    def getTcNumber():
+        pass
+        
 class TcIssue(models.Model):
     tcNumber=models.IntegerField()
     tcYear=models.IntegerField()

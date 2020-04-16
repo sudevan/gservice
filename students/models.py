@@ -41,3 +41,5 @@ class Student(models.Model):
     def __str__(self):
         return '{} ({})-{}'.format(
             self.name, self.admission_number,self.department.name )
+    class Meta:
+        ordering = ['admission_number','department']
