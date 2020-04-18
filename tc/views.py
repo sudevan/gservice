@@ -66,7 +66,7 @@ def tc_application_view(request,pk):
     elements.append(paragraph_1)
     rowhight = 10*cm
     data = [
-        ('Application No',str(tcapplication.tcNumber) + " / "+ str(tcapplication.tcYear) ),
+        ('Application No',str(tcapplication.tc_appliaction_Number) + " / "+ str(tcapplication.tc_appliaction_Year) ),
         ('Department',tcapplication.student.department.name),
         ('Last enrolled class',tcapplication.lastclass),
         ('Admission No',tcapplication.student.admission_number),
@@ -117,6 +117,42 @@ def tc_application_view(request,pk):
 
     doc.build(elements) 
     return response
+
+def  prepareTC(admission_number):
+    student = Students.objects.filter(admission_number=admission_number)
+    tcdata ={}
+    tcNumber = TcApplication.objects.all().aggregate(Max('tcNumber'))['tcNumber__max']
+    
+    if tcNumber == None:
+        tcNumber = 1
+    else:
+        tcNumber +=1
+    tcdata['tcNumber'] = tcNumber
+    tcdata['tcYear'] = date.today().year
+    # tcdata['name'] = 
+    # guardianName = 
+    # guardian_relation = 
+    # Religion = 
+    # Community = forms.CharField(disabled= True)
+    # sc_st_or_obc = forms.ChoiceField(choices = castcategory)
+    # date_of_birth = forms.DateField()
+    # last_attended_class = forms.IntegerField()
+    # date_of_admission_to_class =  forms.DateField()
+    # date_of_promotion = forms.DateField()
+    # promoted_or_not = forms.ChoiceField(choices = yesno)
+    # fee_paid = forms.ChoiceField(choices = yesno)
+    # fee_concession = forms.ChoiceField(choices = yesno)
+    # last_date_of_attendance = forms.DateField()
+    # name_removed_from_roll_date =  forms.DateField()
+    # number_of_working_days = forms.IntegerField()
+    # attendance = forms.IntegerField()
+    # date_of_application = forms.DateField()
+    # date_of_issue = forms.DateField()
+    # proceeding_Institution = forms.CharField()
+    # prepared_by = forms.CharField()
+    # verified_by = forms.CharField()
+    # conduct = forms.CharField()
+
 def tc_issue_view(request,pk):
     if request.method == 'POST':
         pass

@@ -15,7 +15,7 @@ from datetime import date
 
 def newtcappliaction(student):
     
-    tcNumber = TcApplication.objects.all().aggregate(Max('tcNumber'))['tcNumber__max']
+    tcNumber = TcApplication.objects.all().aggregate(Max('tc_appliaction_Number'))['tc_appliaction_Number__max']
     tcYear = date.today().year
     if tcNumber == None:
         tcNumber = 1
