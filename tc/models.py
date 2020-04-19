@@ -17,12 +17,11 @@ promotedchoice=(
 )
 
 class TcApplication(models.Model):
-    tc_appliaction_Number=models.IntegerField()
+    tc_application_Number=models.IntegerField()
     tc_application_Year= models.IntegerField()
     tcNumber=models.IntegerField(null=True,default=None)
     tcYear=models.IntegerField(null=True,default=None)
     dateofIssue=models.DateField(null=True, auto_now=True)
-
     conduct = models.CharField(max_length=20,default="Good")
     student=models.ForeignKey(Student,on_delete=models.PROTECT)
     reasonforLeaving = models.CharField(max_length = 50,choices = leavincchoices)
