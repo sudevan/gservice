@@ -27,6 +27,7 @@ class Student(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE,null=True)
     mobile = models.CharField(max_length=13, blank=True, null=True)
     guardian = models.CharField(max_length=100,default='')
+    guardian_relation =  models.CharField(max_length=100,default='Father',choices = relationship_type )
     guardian_mobile = models.CharField(max_length=13, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     date_of_join = models.DateField(default='1998-01-01')

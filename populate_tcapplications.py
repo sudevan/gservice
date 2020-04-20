@@ -11,6 +11,7 @@ from students.models import Student
 from tc.models import TcApplication
 from django.db.models import Max
 
+
 from datetime import date
 
 def newtcappliaction(student):

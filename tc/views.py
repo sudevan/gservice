@@ -11,6 +11,7 @@ from reportlab.lib import colors
 from admin_tools.models import Classroom
 from reportlab.platypus import Paragraph
 from django.db.models import Max
+import num2words
 
 cm = 2.54
 rowhight = 10*cm
@@ -58,8 +59,9 @@ def printtable_in_doc(elements,data,style=1):
     tablestyle =   TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-    ('BOTTOMPADDING',(0,0),(-1,-1),7),
-    ('TOPPADDING',(0,0),(-1,-1),7)
+    ('BOTTOMPADDING',(0,0),(-1,-1),5),
+    ('TOPPADDING',(0,0),(-1,-1),5),
+    ('VALIGN', (0, 0), (1, 0), 'MIDDLE'),
     ])
     table.setStyle(tablestyle)
     elements.append(table  )
@@ -130,12 +132,15 @@ def tc_application_view(request,pk):
 
     return response
 
-def  prepareTC(admission_number):
+def  prepareTC(pk):
+
     elements=[]
+    tcapplication = TcApplication.objects.get(id=pk)
+    admission_number = tcapplication.student.admission_number
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename=somefilename.pdf'
     doc = SimpleDocTemplate(response)
-    student = Student.objects.filter(admission_number=admission_number)
+    student = Student.objects.filter(admission_number=admission_number)[0]
 
     tcNumber = TcApplication.objects.all().aggregate(Max('tcNumber'))['tcNumber__max']
     
@@ -149,30 +154,46 @@ def  prepareTC(admission_number):
     else:
         tcNumber +=1
 
+    #date of birth in words 
+    datofbirth = student.date_of_birth.strftime("%d/%m/%Y")
+    year = student.date_of_birth.year
+    month = student.date_of_birth.strftime("%B")
+    date = student.date_of_birth.strftime("%d") 
+
+    dobinwords = Paragraph (
+        (datofbirth + " " 
+        + num2words.num2words(date,to='ordinal' ) + " " 
+        + month + " " 
+        + num2words.num2words(year)).title() ,
+            sample_style_sheet['Normal'])
+
+    lastclass = num2words.num2words( tcapplication.lastclass ,to='ordinal' ).title() 
+    lastclass += " Semester " +  student.department.name
     tcdata = [
-    ("TC No:" ,""),
-    ("Name of Educational Institution",""),
-    ("Name of Pupil",""),
-    ("Name of Guardian with the relationship with the pupil",""),
-    ("Nationality",""),
-    ("Religion and Community",""),
+    ("TC Number : " ,"Admission Number : "),
+    ("Name of Educational Institution","Government Polytechnic College Palakkad"),
+    ("Name of Pupil",student.name),
+    ("Name of Guardian with the relationship with the pupil",
+                student.guardian+ ","+student.guardian_relation),
+    ("Nationality","Indian"),
+    ("Religion and Community", student.religion +","+student.community),
     (Paragraph ("""Whether the candidate belongs to scheduled castes or
     scheduled tribes or other backward communities or whether
     he/or she converted from scheduled castes or
-    Other backward Caste scheduled tribes""",sample_style_sheet['Normal']),""),
-    ("Date of Birth according to admission Register",""),
-    ("Class to which the pupil was last enrolled",""),
-    ("Date of Admission or promotion to that class",""),
-    ("Whether qualified for promotion to a higher standard",""),
-    ("Whether the pupil has paid all the fee due to the institution",""),
-    ("Whether the pupil was in receipt of fee concession",""),
-    ("Date of pupil's last attendance",""),
-    ("Date on which the name was removed from the rolls",""),
-    ("No of working days up to the date",""),
-    ("No.of working days the pupil attended",""),
-    ("Date of application for the certificate",""),
-    ("Date of issue of the certificate",""),
-    ("Institution to which the pupil intends proceeding",""),
+    Other backward Caste scheduled tribes""",sample_style_sheet['Normal']),student.category),
+    ("Date of Birth according to admission Register", dobinwords),
+    ("Class to which the pupil was last enrolled",lastclass),
+    ("Date of Admission or promotion to that class",tcapplication.promotionDate),
+    ("Whether qualified for promotion to a higher standard",tcapplication.promotedtoHigherClass),
+    ("Whether the pupil has paid all the fee due to the institution",tcapplication.duesCleared),
+    ("Whether the pupil was in receipt of fee concession",tcapplication.fee_concession),
+    ("Date of pupil's last attendance",tcapplication.lastAttendedDate),
+    ("Date on which the name was removed from the rolls",tcapplication.dateofremovedfromrolls),
+    ("No of working days up to the date",tcapplication.totalWorkingDay),
+    ("No.of working days the pupil attended",tcapplication.attendance),
+    ("Date of application for the certificate",tcapplication.dateofApplication),
+    ("Date of issue of the certificate",tcapplication.dateofIssue),
+    ("Institution to which the pupil intends proceeding",tcapplication.proceedingInstitution),
     ("Prepared by (Section Clerk - Syam Kumar P)",""),
     ("Verified by (Junior Superintendent - Mohandas T)",""),
     ("Date :",""),
@@ -209,8 +230,8 @@ def tc_issue_view(request,pk):
     if request.method == 'POST':
         pass
     else:
-        tcapplication = TcApplication.objects.get(id=pk)
-        response = prepareTC(tcapplication.student.admission_number)
+        
+        response = prepareTC(pk)
         return response
 
 def print_tc(applicationform):

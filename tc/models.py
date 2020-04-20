@@ -31,8 +31,11 @@ class TcApplication(models.Model):
     promotedtoHigherClass = models.CharField(max_length=30,choices=promotedchoice,default ='Result Not Announced')
     proceedingInstitution = models.CharField(max_length = 100 ,default='Result Not Announced')
     lastAttendedDate = models.DateField(auto_now=True)
+    dateofremovedfromrolls =  models.DateField(auto_now=True)
     totalWorkingDay = models.IntegerField(default=0)
     attendance = models.IntegerField(default=0)
+    duesCleared = models.BooleanField(default= True)
+    fee_concession = models.BooleanField(default=True)
     def getTcNumber():
         pass
         
