@@ -170,7 +170,7 @@ def  prepareTC(pk):
     lastclass = num2words.num2words( tcapplication.lastclass ,to='ordinal' ).title() 
     lastclass += " Semester " +  student.department.name
     tcdata = [
-    ("TC Number : " ,"Admission Number : "),
+    ("TC Number : "+ str(tcNumber),"Admission Number : "+ str(admission_number)),
     ("Name of Educational Institution","Government Polytechnic College Palakkad"),
     ("Name of Pupil",student.name),
     ("Name of Guardian with the relationship with the pupil",

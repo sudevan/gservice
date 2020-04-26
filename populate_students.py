@@ -8,7 +8,7 @@ django.setup()
 # must come after django.setup()
 from admin_tools.models import Department, AcademicSession,Classroom
 from students.models import Student
-
+from datetime import datetime
 
 def readDataFromFile(filename):
     
@@ -120,42 +120,57 @@ def populatestudents(studentset):
             continue
         
 
-def generate_students(n=10,semester=None, department=None):
-    for entry in range(n):
-        name = fakegen.name()
-        roll = fakegen.random_int(min=10000, max=99999, step=1)
-        regi = fakegen.random_int(min=10000, max=99999, step=1)
-        dept = random.choice(depts)
-        sem = random.choice(sems)
-        mobile = fakegen.phone_number()
-        guardian = fakegen.phone_number()
 
-        try:
-            if semester and department:
-                student = Student.objects.get_or_create(
-                name=name,
-                admission_number=roll,
-                registration_number=regi,
-                department=dept,
-                semester=semester,
-                mobile=mobile,
-                guardian_mobile=guardian)
-            else:
-                student = Student.objects.get_or_create(
-                name=name,
-                admission_number=roll,
-                registration_number=regi,
-                department=dept,
-                semester=sem,
-                mobile=mobile,
-                guardian_mobile=guardian)
-        except:
-            continue
-        
-        
+
+def updatestudentdata(studentset):
+    ac_session = AcademicSession.objects.get(year=2020)
+    for student in studentset:
+        t = student['admno']
+        admission_number = t[:t.find(".")]
+        name = student['name']
+        guardian = student['guardian']
+        guardian_relation = student['relation']
+        date_of_birth = datetime.strptime(student['dob'],"%d-%m-%Y").date()
+        mobile = student['phone']
+        dept = Department.objects.filter(code=student['programme'])[0]
+        address = student['address']
+        if student['gender'] == 'M':
+            gender = "Male"
+        else:
+            gender = "Female"
+
+
+        s = Student.objects.filter(admission_number = admission_number) 
+        classroom = Classroom.objects.get(department = dept ,semester = 6,
+            academicyear = ac_session)
+
+        if s.count() == 0:
+            newstudent = Student.objects.get_or_create(
+                    name=name,
+                    admission_number=admission_number,
+                    department=dept,
+                    mobile=mobile,
+                    gender=gender,
+                    address = address,
+                    date_of_birth=date_of_birth,
+                    guardian=guardian)
+            newstudent[0].classroom.add(classroom)
+            print("New student added")
+
+        else:
+            dbstudent = s[0]
+            dbstudent.name = name
+            dbstudent.gender = gender
+            dbstudent.guardian = guardian
+            dbstudent.guardian_relation = guardian_relation
+            dbstudent.date_of_birth =date_of_birth
+            dbstudent.save()
+
 
 
 if __name__ == "__main__":
     print('Creating Fake Students....')
     studentset = readDataFromFile("STUDENT DATA.xlsx")
     populatestudents(studentset)
+    studentset = readDataFromFile("admission-list-db-2017.xlsx")
+    updatestudentdata(studentset)
