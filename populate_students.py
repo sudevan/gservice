@@ -64,7 +64,7 @@ def populatestudents(studentset):
        
         t = s['Pass out year - batch']
         t  = t[:t.find(".")]
-
+        active = True
         if t  == '2020':
             sem = 6
         elif t == '2021':
@@ -73,6 +73,7 @@ def populatestudents(studentset):
             sem =2
         else:
             sem = None
+            active = False
         if sem != None:
             classroom = Classroom.objects.get(department = dept ,semester = sem,
             academicyear = ac_session)
@@ -84,7 +85,6 @@ def populatestudents(studentset):
         date_of_join = getdate(s['Date of Join'])
         guardian_mobile =s['Parent\'s Mobile Number']
         guardian = s['Name of Guardian']
-        religion = s['Religion']
         address = s['Address']
         religion = s['Religion']
         community = s['Community']
