@@ -112,6 +112,7 @@ def populatestudents(studentset):
                     category=category,
                     date_of_birth=date_of_birth,
                     feeconcession= feeconcession,
+                    active=active,
                     guardian=guardian)
             if classroom !=None:
                 student[0].classroom.add(classroom)
