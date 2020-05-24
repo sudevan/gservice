@@ -23,7 +23,7 @@ class StudentView(View):
 			'department' : "Department",
 			'action' : "Actions",
 		}
-		students_objs = Student.objects.all().order_by('name')
+		students_objs = Student.objects.filter(active=True,data_verified=False).order_by('admission_number')
 		paginator = Paginator(students_objs,10)
 		page = request.GET.get('page')
 		students = paginator.get_page(page)
@@ -47,31 +47,32 @@ class StudentEditView(View):
 		# 	initial['student'] = student
 		form = StudentEditForm(instance=student)
 		button = [
-			{'type':"submit",'label':"Save",'values':"save",'class':'btn lio-primary-bg text-light'}
+			{'type':"submit",'label':"Save",'value':"save",'name':'save',
+			'class':'btn lio-primary-bg text-light'},
+			{'type':"submit",'label':"Cancel",'value':"cancel",'name':'cancel',
+			'class':'btn lio-primary-bg text-light'},
+			{'type':"submit",'label':"Save And Apply TC",'value':"applytc",'name':'applytc',
+			'class':'btn lio-primary-bg text-light'},
 		]
 		context['form'] = form
 		context['form'].buttons = button
 		context['label'] = "Edit Student"
 		return render(request,self.template_name,context)
 	def post(self,request,*args,**kwargs):
-		print('1')
-		if request.POST:
-			print('2')
+		if request.POST.get('save') ==  'save':
 			student_id = kwargs.get('pk')
 			student = Student.objects.filter(pk=student_id).first()
 			form = StudentEditForm(request.POST,instance=student)
 			if form.is_valid():
 				form.save()
-				print(kwargs)
-				return HttpResponseRedirect(reverse('students:edit_student',kwargs=kwargs))
+				return HttpResponseRedirect(reverse('students:students'))
 			else:
 				context = {}
-				button = [
-					{'type':"submit",'label':"Save",'values':"save",'class':'btn lio-primary-bg text-light'}
-				]
 				context['form'] = form
 				context['form'].buttons = button
 				context['form_media'] = form.media
 				context['label'] = "Edit Student"
 				return render(request,self.template_name,context)
+		else:
+			return HttpResponseRedirect(reverse('students:students'))
 		return 0
