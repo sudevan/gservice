@@ -45,5 +45,8 @@ class StudentEditForm(forms.ModelForm):
 				Column('feeconcession',css_class='form-group col-md-4 mb-0'),
 				Column('data_verified',css_class='form-group col-md-4 mb-0'),
 				css_class='form-row'
-			)
+			),
+			Submit('save', 'save'),
+			Submit('cancel', 'cancel'),
+			Submit('applytc','Save and Apply TC')
 		)

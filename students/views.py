@@ -46,14 +46,15 @@ class StudentEditView(View):
 		# if student:
 		# 	initial['student'] = student
 		form = StudentEditForm(instance=student)
-		button = [
-			{'type':"submit",'label':"Save",'value':"save",'name':'save',
-			'class':'btn lio-primary-bg text-light'},
-			{'type':"submit",'label':"Cancel",'value':"cancel",'name':'cancel',
-			'class':'btn lio-primary-bg text-light'},
-			{'type':"submit",'label':"Save And Apply TC",'value':"applytc",'name':'applytc',
-			'class':'btn lio-primary-bg text-light'},
-		]
+		button=[]
+		# button = [
+		# 	{'type':"submit",'label':"Save",'value':"save",'name':'save',
+		# 	'class':'btn lio-primary-bg text-light'},
+		# 	{'type':"submit",'label':"Cancel",'value':"cancel",'name':'cancel',
+		# 	'class':'btn lio-primary-bg text-light'},
+		# 	{'type':"submit",'label':"Save And Apply TC",'value':"applytc",'name':'applytc',
+		# 	'class':'btn lio-primary-bg text-light'},
+		# ]
 		context['form'] = form
 		context['form'].buttons = button
 		context['label'] = "Edit Student"
