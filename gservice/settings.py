@@ -25,7 +25,7 @@ SECRET_KEY = 'd3kavfz(*0#66o+3*g!aa(7bv!c7$gzi-#)1@h%qwqtjoe%soj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["service.gptcpalakkad.ac.in"]
+ALLOWED_HOSTS = ["service.gptcpalakkad.ac.in","127.0.0.1"]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -136,10 +136,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles')
+    os.path.join(BASE_DIR, 'static')
 ]
 # login/register redirects
 LOGIN_REDIRECT_URL = 'index_view'
