@@ -13,13 +13,37 @@ from reportlab.platypus import Paragraph
 from django.db.models import Max
 import num2words
 
+from django.shortcuts import render
+from django.views import View
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 cm = 2.54
 rowhight = 10*cm
 from students.models import Student
 sample_style_sheet = getSampleStyleSheet()
 # Create your views here.
 #@login_required
-def apply_tc_view(request):
+class  ApplyTcView(View):
+    template_name = 'tc/apply_tc.html'
+    def get(self,request,*args,**kwargs):
+        context = {}
+        initial = {}
+        student_id = kwargs.pop('pk')
+        student = Student.objects.filter(pk=student_id).first()
+        form = TcApplicationForm()
+        context['form'] = form
+        return render(request,self.template_name,context)
+    def post(self,request,*args,**kwargs):
+        if request.POST.get('save') ==  'save':
+            return HttpResponseRedirect(reverse('students:students'))
+        else:
+            return HttpResponseRedirect(reverse('students:students'))
+
+
+def apply_tc_view(request,pk):
     """
     :param request:
     :return: admission form to

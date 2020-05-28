@@ -11,22 +11,42 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 class TcApplicationForm(ModelForm):
     class Meta:
         model = TcApplication
-        fields ='__all__' 
-        #[
-           
-        # 'tcNumber',
-        # 'tcYear',
-        # 'student',
-        # 'reasonforLeaving',
-        # 'dateofApplication',
-        # 'promotionDate',
-        # 'lastclass',
-        # 'promotedtoHigherClass',
-        # 'proceedingInstitio',
-        # 'lastAttendedDate',
-        # 'totalWorkingDay ',
-        # 'attendance',
-        # ]
+        fields = ['tcNumber','tcYear',
+        'reasonforLeaving','dateofApplication','promotionDate','lastclass',
+        'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance',
+        ]
+        widgets={
+            "dateofApplication" : forms.widgets.DateInput(attrs={'type': 'date'}),
+            "promotionDate" : forms.widgets.DateInput(attrs={'type': 'date'})
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = ['tcNumber','tcYear',
+        'reasonforLeaving','dateofApplication','promotionDate','lastclass',
+                  'promotedtoHigherClass','proceedingInstitution','lastAttendedDate',
+                  'attendance',
+        ]
+        buttons = {'apply':'apply','cancel':'cancel'}
+        self.helper = FormHelper()
+        self.helper.layout = Layout()
+        done = False
+        index= 0
+        while index < len(fields):
+            row = Row()
+            row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+            index += 1
+            if index < len(fields):
+                row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+                index += 1
+            if index < len(fields):
+                row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+                index += 1
+            row.css_class='form-row'
+            self.helper.layout.append(row)
+        
+        for key,value in buttons.items():
+            self.helper.layout.append(Submit(key,value))
+
 
 castcategory = (
     ("SC","SC"),

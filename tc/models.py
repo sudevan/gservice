@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 # Create your models here.
 from django.db import models
@@ -25,12 +26,12 @@ class TcApplication(models.Model):
     conduct = models.CharField(max_length=20,default="Good")
     student=models.ForeignKey(Student,on_delete=models.PROTECT)
     reasonforLeaving = models.CharField(max_length = 50,choices = leavincchoices)
-    dateofApplication=models.DateField(auto_now=True)
-    promotionDate = models.DateField(auto_now=True)
+    dateofApplication=models.DateField(default = datetime.datetime.now)
+    promotionDate = models.DateField(default = datetime.datetime.now)
     lastclass = models.IntegerField(default=6)
     promotedtoHigherClass = models.CharField(max_length=30,choices=promotedchoice,default ='Result Not Announced')
     proceedingInstitution = models.CharField(max_length = 100 ,default='Result Not Announced')
-    lastAttendedDate = models.DateField(auto_now=True)
+    lastAttendedDate = models.DateField(default = datetime.datetime.now)
     dateofremovedfromrolls =  models.DateField(auto_now=True)
     totalWorkingDay = models.IntegerField(default=0)
     attendance = models.IntegerField(default=0)

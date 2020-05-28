@@ -60,6 +60,7 @@ class StudentEditView(View):
 		context['label'] = "Edit Student"
 		return render(request,self.template_name,context)
 	def post(self,request,*args,**kwargs):
+		print(request.POST)
 		if request.POST.get('save') ==  'save':
 			student_id = kwargs.get('pk')
 			student = Student.objects.filter(pk=student_id).first()
@@ -67,6 +68,7 @@ class StudentEditView(View):
 			if form.is_valid():
 				form.save()
 				return HttpResponseRedirect(reverse('students:students'))
+
 			else:
 				context = {}
 				context['form'] = form
@@ -74,6 +76,11 @@ class StudentEditView(View):
 				context['form_media'] = form.media
 				context['label'] = "Edit Student"
 				return render(request,self.template_name,context)
+		
+		elif request.POST.get('applytc') == 'Save and apply TC':
+				student_id = kwargs.get('pk')
+				return HttpResponseRedirect(reverse('tc:apply_tc',args=(student_id,)))
 		else:
+			print(request.POST.get('applytc'))
 			return HttpResponseRedirect(reverse('students:students'))
 		return 0
