@@ -13,18 +13,19 @@ class TcApplicationForm(ModelForm):
         model = TcApplication
         fields = ['tcNumber','tcYear',
         'reasonforLeaving','dateofApplication','promotionDate','lastclass',
-        'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance',
+        'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance','totalWorkingDay'
         ]
         widgets={
             "dateofApplication" : forms.widgets.DateInput(attrs={'type': 'date'}),
-            "promotionDate" : forms.widgets.DateInput(attrs={'type': 'date'})
+            "promotionDate" : forms.widgets.DateInput(attrs={'type': 'date'}),
+            "lastAttendedDate":forms.widgets.DateInput(attrs={'type': 'date'})
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = ['tcNumber','tcYear',
         'reasonforLeaving','dateofApplication','promotionDate','lastclass',
                   'promotedtoHigherClass','proceedingInstitution','lastAttendedDate',
-                  'attendance',
+                  'attendance','totalWorkingDay'
         ]
         buttons = {'apply':'apply','cancel':'cancel'}
         self.helper = FormHelper()
