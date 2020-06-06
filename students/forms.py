@@ -2,7 +2,8 @@ from django import forms
 from .models import Student
 from common.widgets import XDSoftDateTimePickerInput
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column,Div
+from crispy_forms.layout import Layout, Submit, Row, Column,Div,Button
+from django.urls import reverse
 
 class StudentEditForm(forms.ModelForm):
 
@@ -25,7 +26,7 @@ class StudentEditForm(forms.ModelForm):
 			'guardian_relation','religion','community','category','feeconcession',
 			'data_verified'
 		]
-		buttons = {'save':'save','cancel':'cancel','applytc':'Save and apply TC'}
+		buttons = {'save':'save','applytc':'Save and apply TC'}
 		self.helper = FormHelper()
 		self.helper.layout = Layout()
 		done = False
@@ -45,6 +46,8 @@ class StudentEditForm(forms.ModelForm):
 		
 		for key,value in buttons.items():
 			self.helper.layout.append(Submit(key,value))
+		self.helper.layout.append(Button('cancel', 'Cancel', css_class='btn-primary',
+                             onclick="window.location.href = '{}';".format(reverse('students:students'))))
 		#it will looks like below
 		# self.helper.layout = Layout(
 		# 	Row(
