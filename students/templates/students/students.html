@@ -1,10 +1,16 @@
 {% extends 'dashboard.html' %}
-
+{% block search_form %}
+  <form id="searchForm" class="form-inline" method="GET" action="{% url 'students:students' %}">
+    <input class="form-control" type="search" placeholder="Search for..." aria-label="Search" name="a_number">
+    <button id="searchBtn" class="btn lio-primary-bg my-2 my-sm-0" type="submit"><i
+    class="fas fa-search"></i></button>
+  </form>
+{% endblock %}
 {% block dashboard-body %}
 
 <h3 class="mb-3">{{label|default:'Students'}}</h3>
 <div class="row">
-  <div class="col-9">
+  <div class="col-12">
     <table class="table table-bordered">
       {% include 'table/header.html' with headers=headers %}
       <tbody>
@@ -22,11 +28,11 @@
           <td scope="row">
             {{student.department}}
           </td>          
-          <td scope="row">
-            <a href="{% url 'students:edit_student' pk=student.id %}" class="btn lio-primary-bg text-light">
-              edit
-            </a>
-          </td>
+          <th scope="row">
+            <a href="{% url 'students:edit_student' pk=student.id %}" class="btn lio-primary-bg text-light">edit </a>
+            
+            <a href="{% url 'students:student' pk=student.id %}" class="btn lio-primary-bg text-light">details</a>
+          </th>
         </tr>
         {% endfor %}
       </tbody>

@@ -4,6 +4,7 @@ from common.widgets import XDSoftDateTimePickerInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column,Div,Button
 from django.urls import reverse
+from tc.models import TcApplication
 
 class StudentEditForm(forms.ModelForm):
 
@@ -26,7 +27,11 @@ class StudentEditForm(forms.ModelForm):
 			'guardian_relation','religion','community','category','feeconcession',
 			'data_verified'
 		]
-		buttons = {'save':'save','applytc':'Save and apply TC'}
+		buttons = {'save':'save'}
+		exists = TcApplication.objects.filter(student_id=self.instance.pk).exists()
+		if not exists:
+			buttons['applytc'] = 'Save and apply TC'
+
 		self.helper = FormHelper()
 		self.helper.layout = Layout()
 		done = False

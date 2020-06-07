@@ -18,24 +18,21 @@
         {% for tcapplication in tcapplications %}
         <tr>
           <th scope="row">
-            <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
               {{ tcapplication.tcNumber}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
               {{ tcapplication.student.admission_number}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
               {{ tcapplication.student.name}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:application_view' pk=tcapplication.id %}">
               {{ tcapplication.activeclassroom}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:tc_issue_view' pk=tcapplication.id %}">
-              issue </a>
+            <a href="{%url 'tc:tc_issue_view' pk=tcapplication.id %}" class="btn lio-primary-bg text-light">issue </a>
+            <a href="{%url 'tc:edit_tc' pk=tcapplication.id %}" class="btn lio-primary-bg text-light">Edit</a>
+            <a href="{%url 'tc:cancel_tc' pk=tcapplication.id %}" class="btn lio-primary-bg text-light">Cancel</a>
           </th>
         </tr>
         {% endfor %}

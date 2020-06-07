@@ -7,12 +7,12 @@ from crispy_forms.layout import (Layout, Fieldset, Field,
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
+from datetime import datetime
 
 class TcApplicationForm(ModelForm):
     class Meta:
         model = TcApplication
-        fields = ['tcNumber','tcYear',
-        'reasonforLeaving','dateofApplication','promotionDate','lastclass',
+        fields = ['reasonforLeaving','dateofApplication','promotionDate','lastclass',
         'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance','totalWorkingDay'
         ]
         widgets={
@@ -20,14 +20,18 @@ class TcApplicationForm(ModelForm):
             "promotionDate" : forms.widgets.DateInput(attrs={'type': 'date'}),
             "lastAttendedDate":forms.widgets.DateInput(attrs={'type': 'date'})
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        fields = ['tcNumber','tcYear',
-        'reasonforLeaving','dateofApplication','promotionDate','lastclass',
+        fields = ['reasonforLeaving','dateofApplication','promotionDate','lastclass',
                   'promotedtoHigherClass','proceedingInstitution','lastAttendedDate',
                   'attendance','totalWorkingDay'
         ]
         buttons = {'apply':'apply','cancel':'cancel'}
+        if 'instance' in kwargs:
+            self.fields['tcNumber'] = forms.CharField(disabled=True,initial=self.instance.tcNumber,label="TC Number")
+            self.fields['tcYear'] = forms.CharField(disabled=True,initial=self.instance.tcYear,label="TC Year")
+            fields.extend(['tcNumber','tcYear'])
         self.helper = FormHelper()
         self.helper.layout = Layout()
         done = False
@@ -48,6 +52,14 @@ class TcApplicationForm(ModelForm):
         for key,value in buttons.items():
             self.helper.layout.append(Submit(key,value))
 
+    def clean(self,*args,**kwargs):
+        tcNumber = 165900
+        lastTcNumber = TcApplication.objects.last()
+        if lastTcNumber and lastTcNumber.tcNumber != None:
+            tcNumber = lastTcNumber.tcNumber + 1            
+        self.instance.tcNumber = tcNumber
+        self.instance.tcYear = datetime.now().year
+        return super().clean(*args,**kwargs)
 
 castcategory = (
     ("SC","SC"),

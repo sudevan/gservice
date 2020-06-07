@@ -18,10 +18,10 @@ promotedchoice=(
 )
 
 class TcApplication(models.Model):
-    tc_application_Number=models.IntegerField()
-    tc_application_Year= models.IntegerField()
-    tcNumber=models.IntegerField(null=True,default=None)
-    tcYear=models.IntegerField(null=True,default=None)
+    tc_application_Number=models.IntegerField(null=True,blank=True)
+    tc_application_Year= models.IntegerField(null=True,blank=True)
+    tcNumber=models.IntegerField(null=True,blank=True,default=None)
+    tcYear=models.IntegerField(null=True,blank=True,default=None)
     dateofIssue=models.DateField(null=True, auto_now=True)
     conduct = models.CharField(max_length=20,default="Good")
     student=models.ForeignKey(Student,on_delete=models.PROTECT)
@@ -37,6 +37,7 @@ class TcApplication(models.Model):
     attendance = models.IntegerField(default=0)
     duesCleared = models.BooleanField(default= True)
     fee_concession = models.BooleanField(default=True)
+    tc_issued = models.BooleanField(default=False)
     def getTcNumber():
         pass
         

@@ -34,3 +34,31 @@ def help_text_class(form,field):
         field.help_text = field.help_text.replace("!@#$%^&*()[]{};:,./<>?|`-=_+", " ")
         field_help_text += f'<i data-toggle="tooltip" data-placement="top" data-html="true class="fa fa-info data-content={field.help_text}></i>'
     return mark_safe(help_text)
+
+@register.filter
+def feeconcession(value):
+    if value :
+        return 'Eligible'
+    else:
+        return 'Not Eligible'
+
+@register.filter
+def studentactive(value):
+    if value :
+        return 'Active'
+    else:
+        return 'Not Active'
+
+@register.filter
+def data_verified(value):
+    if value :
+        return 'Verified'
+    else:
+        return 'Not Verified'
+
+@register.filter
+def tc_issued(value):
+    if value :
+        return 'Issued'
+    else:
+        return 'Not Issued'

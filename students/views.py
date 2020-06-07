@@ -23,16 +23,33 @@ class StudentView(View):
 			'department' : "Department",
 			'action' : "Actions",
 		}
-		students_objs = Student.objects.filter(active=True,data_verified=False).order_by('admission_number')
+		filter_criteria = {}
+		if 'a_number'in request.GET and request.GET['a_number'] != None and request.GET['a_number'] != '':
+			filter_criteria['admission_number'] = request.GET['a_number']
+		filter_criteria['active'] = True
+		filter_criteria['data_verified'] = False
+		students_objs = Student.objects.filter(**filter_criteria).order_by('admission_number')
 		paginator = Paginator(students_objs,10)
 		page = request.GET.get('page')
 		students = paginator.get_page(page)
-
-
-
 		context['headers'] = headers
 		context['students'] = students
 		return render(request,self.template_name,context)
+
+class StudentDetailView(View):
+	template_name = 'students/student.html'
+	def get(self,request,*args,**kwargs):
+		context = {}
+		filter_criteria = {}
+		student_id = kwargs.get('pk')
+		filter_criteria['pk'] = student_id
+		student = Student.objects.filter(**filter_criteria).first()
+		if student :
+			context['student'] = student
+			return render(request,self.template_name,context)
+		else:
+			return HttpResponseRedirect(reverse('students:students'))
+
 
 # @login_required
 class StudentEditView(View):
@@ -60,7 +77,6 @@ class StudentEditView(View):
 		context['label'] = "Edit Student"
 		return render(request,self.template_name,context)
 	def post(self,request,*args,**kwargs):
-		print(request.POST)
 		if request.POST.get('save') ==  'save':
 			student_id = kwargs.get('pk')
 			student = Student.objects.filter(pk=student_id).first()

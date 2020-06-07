@@ -20,6 +20,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+
 cm = 2.54
 rowhight = 10*cm
 from students.models import Student
@@ -31,17 +32,65 @@ class  ApplyTcView(View):
     def get(self,request,*args,**kwargs):
         context = {}
         initial = {}
-        student_id = kwargs.pop('pk')
-        student = Student.objects.filter(pk=student_id).first()
+        k_args = {}
         form = TcApplicationForm()
         context['form'] = form
         return render(request,self.template_name,context)
     def post(self,request,*args,**kwargs):
-        if request.POST.get('save') ==  'save':
+        if 'apply' in request.POST and request.POST['apply'] != '':
+            student_id = kwargs.get('pk')
+            form = TcApplicationForm(request.POST)
+            if form.is_valid():
+                student = Student.objects.filter(pk=student_id).first()
+                application = form.save(commit=False)
+                application.student = student
+                application.save()
+            else:
+                context = {}
+                context['form'] = form
+                return render(request,self.template_name,context)
             return HttpResponseRedirect(reverse('students:students'))
-        else:
+        if 'cancel' in request.POST and request.POST['cancel'] != '':
             return HttpResponseRedirect(reverse('students:students'))
 
+class  EditTcView(View):
+    template_name = 'tc/apply_tc.html'
+    def get(self,request,*args,**kwargs):
+        context = {}
+        initial = {}
+        k_args = {}
+        primary_key = kwargs.get('pk')
+        instance = TcApplication.objects.filter(pk=primary_key).first()
+        if instance:
+            k_args['instance'] = instance
+        form = TcApplicationForm(**k_args)
+        context['form'] = form
+        return render(request,self.template_name,context)
+    def post(self,request,*args,**kwargs):
+        if 'apply' in request.POST and request.POST['apply'] != '':
+            k_args = {}
+            primary_key = kwargs.get('pk')
+            instance = TcApplication.objects.filter(pk=primary_key).first()
+            if instance:
+                k_args['instance'] = instance
+            form = TcApplicationForm(request.POST,**k_args)
+            if form.is_valid():
+                form.save()
+            else:
+                context = {}
+                context['form'] = form
+                return render(request,self.template_name,context)
+            return HttpResponseRedirect(reverse('tc:all_tc'))
+        if 'cancel' in request.POST and request.POST['cancel'] != '':
+            return HttpResponseRedirect(reverse('tc:all_tc'))
+
+class  CancelTcView(View):
+    template_name = 'tc/apply_tc.html'
+    def get(self,request,*args,**kwargs):
+        primary_key = kwargs.get('pk')
+        TcApplication.objects.filter(pk=primary_key).delete()
+        
+        return HttpResponseRedirect(reverse('tc:all_tc'))
 
 def apply_tc_view(request,pk):
     """
@@ -61,9 +110,9 @@ def apply_tc_view(request,pk):
     return render(request, 'tc/apply_tc.html', context)
 
 def application_all_view(request):
-    tcapplications = TcApplication.objects.all()
+    tcapplications = TcApplication.objects.all().order_by('id')
     for tcapplication in tcapplications:
-        tcapplication.activeclassroom = Classroom.objects.filter(student = tcapplication.student,active=True)[0]
+        tcapplication.activeclassroom = Classroom.objects.filter(student = tcapplication.student,active=True).first()
     return render(request, 'tc/tc_applications_all.html', {'tcapplications':tcapplications})
 
 def tc_application_by_department_view(request, pk):
