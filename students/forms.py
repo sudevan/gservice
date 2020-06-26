@@ -12,7 +12,7 @@ class StudentEditForm(forms.ModelForm):
 		model = Student
 		fields = ['admission_number','name',
 		'gender','date_of_birth','department','guardian',
-				  'guardian_relation','religion','community','category','feeconcession',
+				  'guardian_relation','religion','community','category','date_of_join','feeconcession',
 				  'data_verified'
 		]
 		widgets={
@@ -24,7 +24,7 @@ class StudentEditForm(forms.ModelForm):
 		super().__init__(*args, **kwargs)
 		fields = ['admission_number','name',
 		'gender','date_of_birth','department','guardian',
-			'guardian_relation','religion','community','category','feeconcession',
+			'guardian_relation','religion','community','category','date_of_join','feeconcession',
 			'data_verified'
 		]
 		buttons = {'save':'save'}
