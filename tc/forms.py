@@ -75,7 +75,8 @@ class TCIssueForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = ['tcNumber','tcYear','conduct']
-        buttons = {'save':'Save'}
+        buttons = {'issuetc':'Issue TC'}
+        #self.fields['tcNumber'] = forms.CharField(disabled=True,initial=self.instance.tcNumber,label="TC Number")
         self.helper = FormHelper()
         self.helper.layout = Layout()
         done = False
