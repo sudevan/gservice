@@ -40,6 +40,9 @@ class TcApplication(models.Model):
     tc_issued = models.BooleanField(default=False)
     def getTcNumber():
         pass
+    def __str__(self):
+        return '{} ({})-{}'.format(
+            self.student.name, self.tc_application_Number,self.student.department.name )
         
 class TcIssue(models.Model):
     tcNumber=models.IntegerField()

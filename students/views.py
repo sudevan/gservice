@@ -36,6 +36,33 @@ class StudentView(View):
 		context['students'] = students
 		return render(request,self.template_name,context)
 
+# @login_required
+class VerifiedStudentView(View):
+	template_name = 'students/students.html'
+	def get(self,request,*args,**kwargs):
+		context = {}
+		context['label'] = 'Students'
+		headers = {
+			'name' : "Name",
+			'admission_number' : "Admission Number",
+			'registration_number' : "Registration Number",
+			'department' : "Department",
+			'action' : "Actions",
+		}
+		filter_criteria = {}
+		if 'a_number'in request.GET and request.GET['a_number'] != None and request.GET['a_number'] != '':
+			filter_criteria['admission_number'] = request.GET['a_number']
+		filter_criteria['active'] = True
+		filter_criteria['data_verified'] = True
+		students_objs = Student.objects.filter(**filter_criteria).order_by('admission_number')
+		paginator = Paginator(students_objs,10)
+		page = request.GET.get('page')
+		students = paginator.get_page(page)
+		context['headers'] = headers
+		context['students'] = students
+		return render(request,self.template_name,context)
+
+
 class StudentDetailView(View):
 	template_name = 'students/student.html'
 	def get(self,request,*args,**kwargs):
@@ -63,40 +90,25 @@ class StudentEditView(View):
 		# if student:
 		# 	initial['student'] = student
 		form = StudentEditForm(instance=student)
-		button=[]
-		# button = [
-		# 	{'type':"submit",'label':"Save",'value':"save",'name':'save',
-		# 	'class':'btn lio-primary-bg text-light'},
-		# 	{'type':"submit",'label':"Cancel",'value':"cancel",'name':'cancel',
-		# 	'class':'btn lio-primary-bg text-light'},
-		# 	{'type':"submit",'label':"Save And Apply TC",'value':"applytc",'name':'applytc',
-		# 	'class':'btn lio-primary-bg text-light'},
-		# ]
 		context['form'] = form
-		context['form'].buttons = button
 		context['label'] = "Edit Student"
 		return render(request,self.template_name,context)
 	def post(self,request,*args,**kwargs):
-		if request.POST.get('save') ==  'save':
-			student_id = kwargs.get('pk')
-			student = Student.objects.filter(pk=student_id).first()
-			form = StudentEditForm(request.POST,instance=student)
-			if form.is_valid():
-				form.save()
-				return HttpResponseRedirect(reverse('students:students'))
-
-			else:
-				context = {}
-				context['form'] = form
-				context['form'].buttons = button
-				context['form_media'] = form.media
-				context['label'] = "Edit Student"
-				return render(request,self.template_name,context)
 		
-		elif request.POST.get('applytc') == 'Save and apply TC':
+		student_id = kwargs.get('pk')
+		student = Student.objects.filter(pk=student_id).first()
+		form = StudentEditForm(request.POST,instance=student)
+		if request.POST.get('data_verified') == 'on'  and form.is_valid():
+			form.save()
+			if request.POST.get('applytc') == 'Save and apply TC':
 				student_id = kwargs.get('pk')
 				return HttpResponseRedirect(reverse('tc:apply_tc',args=(student_id,)))
+			else:
+				return render(request,self.template_name,context)
 		else:
-			print(request.POST.get('applytc'))
-			return HttpResponseRedirect(reverse('students:students'))
-		return 0
+			context = {}
+			context['form'] = form
+			context['form_media'] = form.media
+			context['label'] = "Edit Student"
+			return render(request,self.template_name,context)
+

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import TcApplicationForm,TcIssueForm
+from .forms import TcApplicationForm,TCIssueForm
 from django.contrib.auth.decorators import login_required
 from .models import TcApplication,TcIssue
 from reportlab.platypus import SimpleDocTemplate
@@ -19,7 +19,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from datetime import datetime
+from django.db.models import Max
 
 cm = 2.54
 rowhight = 10*cm
@@ -33,24 +34,55 @@ class  ApplyTcView(View):
         context = {}
         initial = {}
         k_args = {}
-        form = TcApplicationForm()
+        if kwargs == None:
+            form = TcApplicationForm()
+        else:
+            primary_key = kwargs.get('pk')
+            instance = TcApplication.objects.filter(pk=primary_key).first()
+            if instance:
+                k_args['instance'] = instance
+            form = TcApplicationForm(**k_args)
         context['form'] = form
         return render(request,self.template_name,context)
+
     def post(self,request,*args,**kwargs):
         if 'apply' in request.POST and request.POST['apply'] != '':
             student_id = kwargs.get('pk')
             form = TcApplicationForm(request.POST)
-            if form.is_valid():
-                student = Student.objects.filter(pk=student_id).first()
-                application = form.save(commit=False)
-                application.student = student
-                application.save()
+            instance = TcApplication.objects.filter(pk=student_id).first()
+            #a new entry
+            if instance == None:
+                print ("instance is none")
+                if form.is_valid():
+                    #each year tc application number should be reset. finding the maximum number in the current year
+                    current_year = datetime.now().year
+                    tcApplicationNumber = TcApplication.objects.filter(tc_application_Year= current_year).aggregate(Max ('tc_application_Number')) ['tc_application_Number__max']
+                    if tcApplicationNumber == None:
+                        tcApplicationNumber = 1
+                    else:
+                        tcApplicationNumber +=1          
+                    form.instance.tc_application_Number = tcApplicationNumber
+                    form.instance.tc_application_Year = datetime.now().year
+                    student = Student.objects.filter(pk=student_id).first()
+                    application = form.save(commit=False)
+                    application.student = student
+                    application.save()
+                else:
+                    context = {}
+                    context['form'] = form
+                    return render(request,self.template_name,context)
+            # edit request
             else:
-                context = {}
-                context['form'] = form
-                return render(request,self.template_name,context)
-            return HttpResponseRedirect(reverse('students:students'))
-        if 'cancel' in request.POST and request.POST['cancel'] != '':
+                k_args = {}
+                k_args['instance'] = instance
+                form = TcApplicationForm(request.POST,**k_args)
+                if form.is_valid():
+                    form.save()
+                else:
+                    context = {}
+                    context['form'] = form
+                    return render(request,self.template_name,context)
+
             return HttpResponseRedirect(reverse('students:students'))
 
 class  EditTcView(View):
@@ -92,22 +124,6 @@ class  CancelTcView(View):
         
         return HttpResponseRedirect(reverse('tc:all_tc'))
 
-def apply_tc_view(request,pk):
-    """
-    :param request:
-    :return: admission form to
-    logged in user.
-    """
-    if request.method == 'POST':
-        form = TcApplicationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            pk = form.instance.pk
-            return redirect('students:all_student')
-    else:
-        form = TcApplicationForm()
-    context = {'form': form}
-    return render(request, 'tc/apply_tc.html', context)
 
 def application_all_view(request):
     tcapplications = TcApplication.objects.all().order_by('id')
@@ -147,63 +163,66 @@ def print_heading(elements,heading):
     paragraph_1 = Paragraph(heading,title_style )
     elements.append(paragraph_1)
 
-def tc_application_view(request,pk):
-    tcapplication = TcApplication.objects.get(id=pk)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename=somefilename.pdf'
+class  printTCApplication(View):
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+#def tc_application_view(request,pk):
+        tcapplication = TcApplication.objects.get(id=pk)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'filename=somefilename.pdf'
 
-    heading = ' GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD \
-                        APPLICATION FOR ISSUING T.C , COURSE AND CONDUCT \
-                        CERTIFICATE AND SSLC BOOK '
-    elements = []
+        heading = ' GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD \
+                            APPLICATION FOR ISSUING T.C , COURSE AND CONDUCT \
+                            CERTIFICATE AND SSLC BOOK '
+        elements = []
 
-    doc = SimpleDocTemplate(response)
+        doc = SimpleDocTemplate(response)
 
-    print_heading(elements,heading)
-    
-    data = [
-        ('Application No',str(tcapplication.tc_application_Number) + " / "+ str(tcapplication.tc_application_Year) ),
-        ('Department',tcapplication.student.department.name),
-        ('Last enrolled class',tcapplication.lastclass),
-        ('Admission No',tcapplication.student.admission_number),
-        ('Name of the student',tcapplication.student.name),
-        ('Year Of Studies',""),
-        ('Date of birth',tcapplication.student.date_of_birth),
-        ('Whether the pupil was in receipt of fee concession',tcapplication.student.feeconcession),
-        ('Reason for leaving',tcapplication.reasonforLeaving),
-        ('Signature of the applicant with date',"")
-    ]
+        print_heading(elements,heading)
+        
+        data = [
+            ('Application No',str(tcapplication.tc_application_Number) + " / "+ str(tcapplication.tc_application_Year) ),
+            ('Department',tcapplication.student.department.name),
+            ('Last enrolled class',tcapplication.lastclass),
+            ('Admission No',tcapplication.student.admission_number),
+            ('Name of the student',tcapplication.student.name),
+            ('Year Of Studies',""),
+            ('Date of birth',tcapplication.student.date_of_birth),
+            ('Whether the pupil was in receipt of fee concession',tcapplication.student.feeconcession),
+            ('Reason for leaving',tcapplication.reasonforLeaving),
+            ('Signature of the applicant with date',"")
+        ]
 
-    printtable_in_doc(elements,data)
+        printtable_in_doc(elements,data)
 
-    
-    paragraph_1 = Paragraph("Dues if any to be furnished below",sample_style_sheet['Heading3'])
-    elements.append(paragraph_1  )
-    data  = [
-        ("Section","Signature & Name","Section","Signature & Name"),
-        ("Head of section","","Workshop",""),
-        ("Applied Science lab","","Library",""),
-        ("Co-op Society","","Physical education",""),
-        ("NSS","","NCC",""),
-        ("Hostel","","Academic section",""),
-    ]
+        
+        paragraph_1 = Paragraph("Dues if any to be furnished below",sample_style_sheet['Heading3'])
+        elements.append(paragraph_1  )
+        data  = [
+            ("Section","Signature & Name","Section","Signature & Name"),
+            ("Head of section","","Workshop",""),
+            ("Applied Science lab","","Library",""),
+            ("Co-op Society","","Physical education",""),
+            ("NSS","","NCC",""),
+            ("Hostel","","Academic section",""),
+        ]
 
-    printtable_in_doc(elements,data,style=2)
+        printtable_in_doc(elements,data,style=2)
 
-    data = [
-         ("Date of pupil's last attendance at Institution",tcapplication.lastAttendedDate),
-         ("Total No of working days",tcapplication.totalWorkingDay),
-         ("No.of working days the pupil attended",tcapplication.attendance),
-         ("Date of application",tcapplication.dateofApplication),
-         ("Signature of tutor",""),
-         ("Head of Section","")
-     ]
+        data = [
+            ("Date of pupil's last attendance at Institution",tcapplication.lastAttendedDate),
+            ("Total No of working days",tcapplication.totalWorkingDay),
+            ("No.of working days the pupil attended",tcapplication.attendance),
+            ("Date of application",tcapplication.dateofApplication),
+            ("Signature of tutor",""),
+            ("Head of Section","")
+        ]
 
-    printtable_in_doc(elements,data)
+        printtable_in_doc(elements,data)
 
-    doc.build(elements)
+        doc.build(elements)
 
-    return response
+        return response
 
 def  prepareTC(pk):
 
@@ -274,38 +293,23 @@ def  prepareTC(pk):
     ]
     printtable_in_doc(elements,tcdata)
     doc.build(elements)
-    # tcdata['name'] = 
-    # guardianName = 
-    # guardian_relation = 
-    # Religion = 
-    # Community = forms.CharField(disabled= True)
-    # sc_st_or_obc = forms.ChoiceField(choices = castcategory)
-    # date_of_birth = forms.DateField()
-    # last_attended_class = forms.IntegerField()
-    # date_of_admission_to_class =  forms.DateField()
-    # date_of_promotion = forms.DateField()
-    # promoted_or_not = forms.ChoiceField(choices = yesno)
-    # fee_paid = forms.ChoiceField(choices = yesno)
-    # fee_concession = forms.ChoiceField(choices = yesno)
-    # last_date_of_attendance = forms.DateField()
-    # name_removed_from_roll_date =  forms.DateField()
-    # number_of_working_days = forms.IntegerField()
-    # attendance = forms.IntegerField()
-    # date_of_application = forms.DateField()
-    # date_of_issue = forms.DateField()
-    # proceeding_Institution = forms.CharField()
-    # prepared_by = forms.CharField()
-    # verified_by = forms.CharField()
-    # conduct = forms.CharField()
     return response
 
-def tc_issue_view(request,pk):
-    if request.method == 'POST':
-        pass
-    else:
-        
-        response = prepareTC(pk)
-        return response
+class tcIssue(View):
+    template_name = "tc/issue_tc.html"
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+        context = {}
+        initial = {}
+        k_args = {}
+        primary_key = kwargs.get('pk')
+        instance = TcApplication.objects.filter(pk=primary_key).first()
+        if instance:
+            k_args['instance'] = instance
+        form = TCIssueForm(**k_args)
+        context['form'] = form
+        return render(request,self.template_name,context)
 
-def print_tc(applicationform):
-    pass
+ #       return response
+    def post(self,request,*args,**kwargs):
+        pass

@@ -6,14 +6,16 @@ from crispy_forms.layout import (Layout, Fieldset, Field,
                                  ButtonHolder, Submit, Div)
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
+from crispy_forms.layout import Layout, Submit, Row, Column,Button
+from django.urls import reverse
 from datetime import datetime
+from django.db.models import Max
 
 class TcApplicationForm(ModelForm):
     class Meta:
         model = TcApplication
         fields = ['reasonforLeaving','dateofApplication','promotionDate','lastclass',
-        'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance','totalWorkingDay'
+        'promotedtoHigherClass','proceedingInstitution','lastAttendedDate','attendance','totalWorkingDay','tc_application_Number','tc_application_Year'
         ]
         widgets={
             "dateofApplication" : forms.widgets.DateInput(attrs={'type': 'date'}),
@@ -27,11 +29,11 @@ class TcApplicationForm(ModelForm):
                   'promotedtoHigherClass','proceedingInstitution','lastAttendedDate',
                   'attendance','totalWorkingDay'
         ]
-        buttons = {'apply':'apply','cancel':'cancel'}
+        buttons = {'apply':'apply'}
         if 'instance' in kwargs:
-            self.fields['tcNumber'] = forms.CharField(disabled=True,initial=self.instance.tcNumber,label="TC Number")
-            self.fields['tcYear'] = forms.CharField(disabled=True,initial=self.instance.tcYear,label="TC Year")
-            fields.extend(['tcNumber','tcYear'])
+            self.fields['tc_application_Number'] = forms.CharField(disabled=True,initial=self.instance.tcNumber,label="Application Number")
+            self.fields['tc_application_Year'] = forms.CharField(disabled=True,initial=self.instance.tcYear,label="TC Application Year")
+            fields.extend(['tc_application_Number','tc_application_Year'])
         self.helper = FormHelper()
         self.helper.layout = Layout()
         done = False
@@ -51,66 +53,60 @@ class TcApplicationForm(ModelForm):
         
         for key,value in buttons.items():
             self.helper.layout.append(Submit(key,value))
+        self.helper.layout.append(Button('cancel', 'Cancel', css_class='btn-primary',
+                             onclick="window.location.href = '{}';".format(reverse('students:students'))))
 
     def clean(self,*args,**kwargs):
-        tcNumber = 165900
-        lastTcNumber = TcApplication.objects.last()
-        if lastTcNumber and lastTcNumber.tcNumber != None:
-            tcNumber = lastTcNumber.tcNumber + 1            
-        self.instance.tcNumber = tcNumber
-        self.instance.tcYear = datetime.now().year
+        print ("Clean function called")
+        tcApplicationNumber = TcApplication.objects.all().aggregate(Max ('tc_application_Number')) ['tc_application_Number__max']
+        if tcApplicationNumber == None:
+            tcApplicationNumber = 1
+        else:
+            tcApplicationNumber +=1          
+        self.instance.tc_application_Number = tcApplicationNumber
+        self.instance.tc_application_Year = datetime.now().year
+        print("application number",self.instance.tc_application_Number)
         return super().clean(*args,**kwargs)
 
-castcategory = (
-    ("SC","SC"),
-    ("ST","ST"),
-    ("OBC","OBC"),
-)
-yesno = (
-    ("Yes","Yes"),
-    ("No","No")
-)
-class TcIssueForm(forms.Form):
-    tcnumber = forms.CharField(label=" TC Number")
-    name = forms.CharField()
-    guardianName = forms.CharField(disabled=True)
-    guardian_relation = forms.CharField(disabled= True)
-    Religion = forms.CharField(disabled= True)
-    Community = forms.CharField(disabled= True)
-    sc_st_or_obc = forms.ChoiceField(choices = castcategory)
-    date_of_birth = forms.DateField()
-    last_attended_class = forms.IntegerField()
-    date_of_admission_to_class =  forms.DateField()
-    date_of_promotion = forms.DateField()
-    promoted_or_not = forms.ChoiceField(choices = yesno)
-    fee_paid = forms.ChoiceField(choices = yesno)
-    fee_concession = forms.ChoiceField(choices = yesno)
-    last_date_of_attendance = forms.DateField()
-    name_removed_from_roll_date =  forms.DateField()
-    number_of_working_days = forms.IntegerField()
-    attendance = forms.IntegerField()
-    date_of_application = forms.DateField()
-    date_of_issue = forms.DateField()
-    proceeding_Institution = forms.CharField()
-    prepared_by = forms.CharField()
-    verified_by = forms.CharField()
-    conduct = forms.CharField()
+class TCIssueForm(ModelForm):
+    class Meta:
+        model = TcApplication
+        fields = ['tcNumber','tcYear','conduct']
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.helper = FormHelper()
-    #     self.helper.layout = Layout(
-    #         Row(
-    #             Column( 'tcnumber',css_class='form-group col-md-4 mb-0'),
-    #             Column( 'name',css_class='form-group col-md-4 mb-0'),
-    #             Column( 'guardianName',css_class='form-group col-md-4 mb-0'),
-    #             css_class='form-row'
-    #         ),
-    #         Row(
-    #             Column( 'guardian_relation',css_class='form-group col-md-4 mb-0'),
-    #             css_class='form-row'
-    #         ),
-    #         Submit('submit', 'Issue')
-    #     )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = ['tcNumber','tcYear','conduct']
+        buttons = {'save':'Save'}
+        self.helper = FormHelper()
+        self.helper.layout = Layout()
+        done = False
+        index= 0
+        while index < len(fields):
+            row = Row()
+            row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+            index += 1
+            if index < len(fields):
+                row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+                index += 1
+            if index < len(fields):
+                row.append( Column(fields[index],css_class='form-group col-md-4 mb-0'))
+                index += 1
+            row.css_class='form-row'
+            self.helper.layout.append(row)
+        
+        for key,value in buttons.items():
+            self.helper.layout.append(Submit(key,value))
+        self.helper.layout.append(Button('cancel', 'Cancel', css_class='btn-primary',
+                             onclick="window.location.href = '{}';".format(reverse('tc:all_tc'))))
 
-                
+    def clean(self,*args,**kwargs):
+        print ("Clean function called")
+        tcApplicationNumber = TcApplication.objects.all().aggregate(Max ('tc_application_Number')) ['tc_application_Number__max']
+        if tcApplicationNumber == None:
+            tcApplicationNumber = 1
+        else:
+            tcApplicationNumber +=1          
+        self.instance.tc_application_Number = tcApplicationNumber
+        self.instance.tc_application_Year = datetime.now().year
+        print("application number",self.instance.tc_application_Number)
+        return super().clean(*args,**kwargs)     
