@@ -104,7 +104,7 @@ class StudentEditView(View):
 				student_id = kwargs.get('pk')
 				return HttpResponseRedirect(reverse('tc:apply_tc',args=(student_id,)))
 			else:
-				return render(request,self.template_name,context)
+				return HttpResponseRedirect(reverse('students:students'))
 		else:
 			context = {}
 			context['form'] = form
