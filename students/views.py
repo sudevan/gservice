@@ -6,8 +6,7 @@ from django.core.paginator import Paginator
 from .forms import StudentEditForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
-
+from tc.models import TcApplication
 
 # Create your views here.
 # @login_required
@@ -62,21 +61,25 @@ class VerifiedStudentView(View):
 		context['students'] = students
 		return render(request,self.template_name,context)
 
-
 class StudentDetailView(View):
 	template_name = 'students/student.html'
 	def get(self,request,*args,**kwargs):
-		context = {}
-		filter_criteria = {}
-		student_id = kwargs.get('pk')
-		filter_criteria['pk'] = student_id
-		student = Student.objects.filter(**filter_criteria).first()
-		if student :
+		try:
+			context = {}
+			filter_criteria = {}
+			student_id = kwargs.get('pk')
+			filter_criteria['pk'] = student_id
+			student = Student.objects.filter(**filter_criteria).first()
 			context['student'] = student
+			tc_application = TcApplication.objects.filter(student_id=student_id)
+			exists = tc_application.exists()
+			if exists:
+				context['tc_application'] = tc_application.first()
+			context['tc_exists'] = exists
 			return render(request,self.template_name,context)
-		else:
+		except Exception as e:
+			print(e)
 			return HttpResponseRedirect(reverse('students:students'))
-
 
 # @login_required
 class StudentEditView(View):
@@ -111,4 +114,3 @@ class StudentEditView(View):
 			context['form_media'] = form.media
 			context['label'] = "Edit Student"
 			return render(request,self.template_name,context)
-
