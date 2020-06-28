@@ -308,10 +308,8 @@ class tcIssue(View):
             k_args['instance'] = instance
         form = TCIssueForm(**k_args)
         context['form'] = form
-        context['admission_number'] = instance.student.admission_number
-        context['name'] = instance.student.name
+        context['student'] = instance.student
         return render(request,self.template_name,context)
-
  #       return response
     def post(self,request,*args,**kwargs):
         pass
