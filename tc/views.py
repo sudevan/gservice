@@ -120,8 +120,7 @@ class  CancelTcView(View):
     template_name = 'tc/apply_tc.html'
     def get(self,request,*args,**kwargs):
         primary_key = kwargs.get('pk')
-        TcApplication.objects.filter(pk=primary_key).delete()
-        
+        TcApplication.objects.filter(pk=primary_key).delete() 
         return HttpResponseRedirect(reverse('tc:all_tc'))
 
 
@@ -225,7 +224,6 @@ class  printTCApplication(View):
         return response
 
 def  prepareTC(pk):
-
     elements=[]
     tcapplication = TcApplication.objects.get(id=pk)
     admission_number = tcapplication.student.admission_number
@@ -233,18 +231,11 @@ def  prepareTC(pk):
     response['Content-Disposition'] = 'filename=somefilename.pdf'
     doc = SimpleDocTemplate(response)
     student = Student.objects.filter(admission_number=admission_number)[0]
-
-    tcNumber = TcApplication.objects.all().aggregate(Max('tcNumber'))['tcNumber__max']
-    
     heading = """GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD"""
            
     print_heading(elements,heading)
     heading = """TRANSFER CERTIFICATE"""
     print_heading(elements,heading)
-    if tcNumber == None:
-        tcNumber = 1
-    else:
-        tcNumber +=1
 
     #date of birth in words 
     datofbirth = student.date_of_birth.strftime("%d/%m/%Y")
@@ -262,7 +253,7 @@ def  prepareTC(pk):
     lastclass = num2words.num2words( tcapplication.lastclass ,to='ordinal' ).title() 
     lastclass += " Semester " +  student.department.name
     tcdata = [
-    ("TC Number : "+ str(tcNumber),"Admission Number : "+ str(admission_number)),
+    ("TC Number : "+ str(tcapplication.tcNumber),"Admission Number : "+ str(admission_number)),
     ("Name of Educational Institution","Government Polytechnic College Palakkad"),
     ("Name of Pupil",student.name),
     ("Name of Guardian with the relationship with the pupil",
@@ -298,18 +289,38 @@ def  prepareTC(pk):
 class tcIssue(View):
     template_name = "tc/issue_tc.html"
     def get(self,request,*args,**kwargs):
+        #get the TC number
+
         pk = kwargs.get('pk')
         context = {}
         initial = {}
         k_args = {}
         primary_key = kwargs.get('pk')
         instance = TcApplication.objects.filter(pk=primary_key).first()
+
+        if instance.tcNumber == None: 
+            current_year = datetime.now().year
+            tcNumber = TcApplication.objects.filter(tcYear= current_year).aggregate(Max ('tcNumber')) ['tcNumber__max']
+            if tcNumber == None:
+                tcNumber = 1
+            else:
+                tcNumber +=1 
+            instance.tcNumber = tcNumber
+            instance.tcYear =current_year
         if instance:
             k_args['instance'] = instance
+
         form = TCIssueForm(**k_args)
         context['form'] = form
         context['student'] = instance.student
         return render(request,self.template_name,context)
  #       return response
     def post(self,request,*args,**kwargs):
-        pass
+        primary_key = kwargs.get('pk')
+        instance = TcApplication.objects.filter(pk=primary_key).first()
+        instance.tcNumber = request.POST.get('tcNumber')
+        instance.tcYear = request.POST.get('tcYear')
+        instance.save()
+        print(instance.student.name)
+        student_id  = instance.student.id
+        return HttpResponseRedirect(reverse('students:student',args=(student_id,)))
