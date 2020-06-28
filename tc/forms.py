@@ -57,7 +57,6 @@ class TcApplicationForm(ModelForm):
                              onclick="window.location.href = '{}';".format(reverse('students:students'))))
 
     def clean(self,*args,**kwargs):
-        print ("Clean function called")
         tcApplicationNumber = TcApplication.objects.all().aggregate(Max ('tc_application_Number')) ['tc_application_Number__max']
         if tcApplicationNumber == None:
             tcApplicationNumber = 1
