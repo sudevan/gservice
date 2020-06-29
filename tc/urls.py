@@ -9,4 +9,5 @@ urlpatterns = [
     path('all/',tc.application_all_view,name='all_tc'),
     path('<int:pk>/', tc.printTCApplication.as_view(), name='application_view'),
     path('<int:pk>/issue/',tc.tcIssue.as_view(),name = 'tc_issue_view'),
+    path('<int:pk>/printtc/',tc.printTC.as_view(),name = 'tc_print_view'),
     ]

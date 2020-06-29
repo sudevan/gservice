@@ -47,12 +47,12 @@ class  ApplyTcView(View):
 
     def post(self,request,*args,**kwargs):
         if 'apply' in request.POST and request.POST['apply'] != '':
-            student_id = kwargs.get('pk')
+            application_id = kwargs.get('pk')
             form = TcApplicationForm(request.POST)
-            instance = TcApplication.objects.filter(pk=student_id).first()
+            instance = TcApplication.objects.filter(pk=application_id).first()
+            
             #a new entry
             if instance == None:
-                print ("instance is none")
                 if form.is_valid():
                     #each year tc application number should be reset. finding the maximum number in the current year
                     current_year = datetime.now().year
@@ -63,7 +63,8 @@ class  ApplyTcView(View):
                         tcApplicationNumber +=1          
                     form.instance.tc_application_Number = tcApplicationNumber
                     form.instance.tc_application_Year = datetime.now().year
-                    student = Student.objects.filter(pk=student_id).first()
+                    student = Student.objects.filter(pk=application_id).first()
+                    student_id = student.id
                     application = form.save(commit=False)
                     application.student = student
                     application.save()
@@ -76,6 +77,7 @@ class  ApplyTcView(View):
                 k_args = {}
                 k_args['instance'] = instance
                 form = TcApplicationForm(request.POST,**k_args)
+                student_id = instance.student.id
                 if form.is_valid():
                     form.save()
                 else:
@@ -83,7 +85,7 @@ class  ApplyTcView(View):
                     context['form'] = form
                     return render(request,self.template_name,context)
 
-            return HttpResponseRedirect(reverse('students:students'))
+            return HttpResponseRedirect(reverse('students:student',args=(student_id,)))
 
 class  EditTcView(View):
     template_name = 'tc/apply_tc.html'
@@ -253,7 +255,7 @@ def  prepareTC(pk):
     lastclass = num2words.num2words( tcapplication.lastclass ,to='ordinal' ).title() 
     lastclass += " Semester " +  student.department.name
     tcdata = [
-    ("TC Number : "+ str(tcapplication.tcNumber),"Admission Number : "+ str(admission_number)),
+    ("TC Number : "+ str(tcapplication.tcNumber)+"/"+str(tcapplication.tcYear),"Admission Number : "+ str(admission_number)),
     ("Name of Educational Institution","Government Polytechnic College Palakkad"),
     ("Name of Pupil",student.name),
     ("Name of Guardian with the relationship with the pupil",
@@ -320,7 +322,12 @@ class tcIssue(View):
         instance = TcApplication.objects.filter(pk=primary_key).first()
         instance.tcNumber = request.POST.get('tcNumber')
         instance.tcYear = request.POST.get('tcYear')
+        instance.tc_issued = True
         instance.save()
         print(instance.student.name)
         student_id  = instance.student.id
         return HttpResponseRedirect(reverse('students:student',args=(student_id,)))
+class printTC(View):
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+        return prepareTC(pk)
