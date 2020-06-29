@@ -7,15 +7,23 @@ from django.contrib.auth.models import User
 #from students.models import Student
 #from teachers.models import Teacher
 from .forms import UserRegistrationForm
+from students.models import Student
+from tc.models import TcApplication
 # Create your views here.
 
 @login_required
 def dashboard(request):
-    total_students = 10
+    total_students = Student.objects.count()
     total_teachers = 10
+    total_tc_pending_applications = TcApplication.objects.filter(tc_issued=False).count()
+    students_pending_verfication = Student.objects.filter(data_verified=False).count()
+    total_tc_issued = TcApplication.objects.filter(tc_issued=True).count()
     context = {
         'total_students': total_students,
-        'total_teachers': total_teachers,
+        'total_tc_pending_applications': total_tc_pending_applications,
+        'students_pending_verfication':students_pending_verfication,
+        'total_tc_issued' : total_tc_issued
+
     }
     return render(request, 'dashboard.html', context)
 def register(request):

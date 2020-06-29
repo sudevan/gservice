@@ -22,9 +22,9 @@ from django.contrib.auth import views as auth_views
 from account.views import dashboard
 
 
-admin.site.site_header = "SMS-LIO Admin"
-admin.site.site_title = "SMS-LIO Admin Portal"
-admin.site.index_title = "Welcome to SMS-LIO Portal"
+admin.site.site_header = "GPC Palakkad"
+admin.site.site_title = "GPC Palakkd Admin Portal"
+admin.site.index_title = "Welcome to GPC Palakkad Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
