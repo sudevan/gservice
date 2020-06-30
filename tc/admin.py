@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import TcApplication
 # Register your models here.
 class TcAdmin(admin.ModelAdmin):
-    list_display = ('application_Number','TC_Number','student__name','student__department')
+    list_display = ('admission_number','application_Number','TC_Number','student__name','student__department')
     search_fields = ('student__name', 'student__admission_number')
-    list_filter = ('student__department',)
+    list_filter = ('student__department','tc_issued')
     def student__name(self,obj):
         return obj.student.name
     def student__department(self,obj):
@@ -16,6 +16,8 @@ class TcAdmin(admin.ModelAdmin):
             return "Not issued"
         else:
             return str(obj.tcNumber ) + '/' +str( obj.tcYear )
+    def admission_number(self,obj):
+        return obj.student.admission_number
 
 
 admin.site.register(TcApplication,TcAdmin)
