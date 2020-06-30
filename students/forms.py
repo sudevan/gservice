@@ -13,7 +13,7 @@ class StudentEditForm(forms.ModelForm):
 		fields = ['admission_number','name',
 		'gender','date_of_birth','department','guardian',
 				  'guardian_relation','religion','community','category','date_of_join','feeconcession',
-				  'data_verified'
+				  'data_verified','registration_number'
 		]
 		widgets={
 			"date_of_birth" : forms.widgets.DateInput(attrs={'type': 'date'}),
@@ -24,8 +24,8 @@ class StudentEditForm(forms.ModelForm):
 		super().__init__(*args, **kwargs)
 		fields = ['admission_number','name',
 		'gender','date_of_birth','department','guardian',
-			'guardian_relation','religion','community','category','date_of_join','feeconcession',
-			'data_verified'
+			'guardian_relation','religion','community','category','date_of_join','registration_number','feeconcession',
+			'data_verified',
 		]
 		buttons = {'save':'save'}
 		exists = TcApplication.objects.filter(student_id=self.instance.pk).exists()
