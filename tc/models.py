@@ -42,7 +42,7 @@ class TcApplication(models.Model):
         pass
     def __str__(self):
         return '{} ({})-{}'.format(
-            self.student.name, self.tc_application_Number,self.student.department.name )
+            self.student.name, self.tcNumber,self.student.department.name )
         
 class TcIssue(models.Model):
     tcNumber=models.IntegerField()
