@@ -4,7 +4,7 @@ from .models import TcApplication
 class TcAdmin(admin.ModelAdmin):
     list_display = ('admission_number','application_Number','TC_Number','student__name','student__department')
     search_fields = ('student__name', 'student__admission_number')
-    list_filter = ('student__department','tc_issued')
+    list_filter = ('student__department','tc_issued','dateofApplication')
     def student__name(self,obj):
         return obj.student.name
     def student__department(self,obj):
