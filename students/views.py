@@ -9,6 +9,29 @@ from django.urls import reverse
 from tc.models import TcApplication
 
 # Create your views here.
+class AllStudents(View):
+	template_name = 'students/students.html'
+	def get(self,request,*args,**kwargs):
+		context = {}
+		context['label'] = 'Students'
+		headers = {
+			'name' : "Name",
+			'admission_number' : "Admission Number",
+			'registration_number' : "Registration Number",
+			'department' : "Department",
+			'action' : "Actions",
+		}
+		filter_criteria = {}
+		if 'a_number'in request.GET and request.GET['a_number'] != None and request.GET['a_number'] != '':
+			filter_criteria['admission_number'] = request.GET['a_number']
+		students_objs = Student.objects.filter(**filter_criteria).order_by('admission_number')
+		paginator = Paginator(students_objs,10)
+		page = request.GET.get('page')
+		students = paginator.get_page(page)
+		context['headers'] = headers
+		context['students'] = students
+		return render(request,self.template_name,context)
+		
 # @login_required
 class StudentView(View):
 	template_name = 'students/students.html'
