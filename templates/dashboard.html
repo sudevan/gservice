@@ -45,7 +45,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
               {% block search_form %}
-              {% endblock %}
+              <form id="searchForm" class="form-inline" method="GET" action="{% url 'students:allstudents' %}">
+                <input class="form-control" type="search" placeholder="Admission Number" aria-label="Search" name="a_number">
+                <button id="searchBtn" class="btn lio-primary-bg my-2 my-sm-0" type="submit"><i
+                class="fas fa-search"></i></button>
+              </form>
+            {% endblock %}
               <div class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"

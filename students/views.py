@@ -9,6 +9,7 @@ from django.urls import reverse
 from tc.models import TcApplication
 
 # Create your views here.
+#@login_required
 class AllStudents(View):
 	template_name = 'students/students.html'
 	def get(self,request,*args,**kwargs):
@@ -32,8 +33,8 @@ class AllStudents(View):
 		context['students'] = students
 		return render(request,self.template_name,context)
 		
-# @login_required
-class StudentView(View):
+#@login_required
+class StudentsPendingVerification(View):
 	template_name = 'students/students.html'
 	def get(self,request,*args,**kwargs):
 		context = {}
