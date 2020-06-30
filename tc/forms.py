@@ -34,6 +34,13 @@ class TcApplicationForm(ModelForm):
             self.fields['tc_application_Number'] = forms.CharField(disabled=True,initial=self.instance.tcNumber,label="Application Number")
             self.fields['tc_application_Year'] = forms.CharField(disabled=True,initial=self.instance.tcYear,label="TC Application Year")
             fields.extend(['tc_application_Number','tc_application_Year'])
+        else:
+        #fill some default values 
+            self.fields['totalWorkingDay'].initial = 78
+            self.fields['lastAttendedDate'].initial = '2020-03-24'
+            self.fields['promotionDate'].initial = '2019-11-27'
+            self.fields['reasonforLeaving'].initial ='Course Completed'
+
         self.helper = FormHelper()
         self.helper.layout = Layout()
         done = False
