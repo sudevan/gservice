@@ -5,7 +5,7 @@ from .models import TcApplication,TcIssue
 from reportlab.platypus import SimpleDocTemplate
 from reportlab.platypus.tables import Table
 from django.http import HttpResponse
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet ,ParagraphStyle
 from reportlab.platypus.tables import Table, TableStyle
 from reportlab.lib import colors
 from admin_tools.models import Classroom
@@ -21,6 +21,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import datetime
 from django.db.models import Max
+
+from reportlab.lib.enums import TA_JUSTIFY,TA_LEFT,TA_CENTER,TA_RIGHT
 
 cm = 2.54
 rowhight = 10*cm
@@ -151,16 +153,49 @@ def printtable_in_doc(elements,data,style=1):
     ('BOX', (0,0), (-1,-1), 0.25, colors.black),
     ('BOTTOMPADDING',(0,0),(-1,-1),5),
     ('TOPPADDING',(0,0),(-1,-1),5),
+    ('SPAN',(-2,-1),(-1,-1)),
     ('VALIGN', (0, 0), (1, 0), 'MIDDLE'),
     ])
+    table.setStyle(tablestyle)
+    elements.append(table  )
+def print_conductCertificate(elements,student):
+    conductstyle  = ParagraphStyle(
+   'conduct',
+    parent=sample_style_sheet['Normal'],
+    fontSize=11,
+    leading=14,
+    alignment = TA_JUSTIFY,)
+    heading = 'COURSE AND CONDUCT CERTIFICATE'
+    print_heading(elements,heading)
+    date_of_join = student.date_of_join.strftime("%d/%m/%Y")
+    lastAttendedDate = student.lastAttendedDate.strftime("%d/%m/%Y")
+    lastMonth = student.lastAttendedDate.strftime("%B")
+    lastYear = student.lastAttendedDate.strftime("%Y")
+    print (student.reasonforLeaving)
+    if student.reasonforLeaving == "Course Completed" :
+        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution in "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + " and he/she completed his/her 3 year diploma programme of study in "+lastMonth + " " + lastYear +". The medium of the entire programme was English. <br/><br/> During the course of study his/her character and conduct were found <b> Good </b>",conductstyle )]
+    else:
+        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution in "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + ".<br/><br/> During the course of study his/her character and conduct were found <b> Good </b>",conductstyle )]
+    data = [data]
+
+    table = Table(data, colWidths=270*2) 
+    #command ,startindex ,endindex 
+    tablestyle =   TableStyle([
+    ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+    ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+    ('BOTTOMPADDING',(0,0),(-1,-1),75),
+    ('TOPPADDING',(0,0),(-1,-1),5),
+    ('FONTSIZE',(0,0),(-1,-1),20),
+    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ])
+
     table.setStyle(tablestyle)
     elements.append(table  )
 
 def print_heading(elements,heading):
     sample_style_sheet = getSampleStyleSheet()
-    title_style = sample_style_sheet['Heading2']
+    title_style = sample_style_sheet['Heading3']
     title_style.alignment = 1
-
     paragraph_1 = Paragraph(heading,title_style )
     elements.append(paragraph_1)
 
@@ -220,7 +255,6 @@ class  printTCApplication(View):
         ]
 
         printtable_in_doc(elements,data)
-
         doc.build(elements)
 
         return response
@@ -232,6 +266,8 @@ def  prepareTC(pk):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename=somefilename.pdf'
     doc = SimpleDocTemplate(response)
+    doc.bottomMargin = 2*cm
+    doc.topMargin = 8*cm
     student = Student.objects.filter(admission_number=admission_number)[0]
     heading = """GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD"""
            
@@ -244,7 +280,11 @@ def  prepareTC(pk):
     year = student.date_of_birth.year
     month = student.date_of_birth.strftime("%B")
     date = student.date_of_birth.strftime("%d") 
-
+    dateofissue = tcapplication.dateofIssue.strftime("%d/%m/%Y")
+    dateofApplication = tcapplication.dateofApplication.strftime('%d/%m/%Y')
+    promotionDate = tcapplication.promotionDate.strftime('%d/%m/%Y')
+    lastAttendedDate = tcapplication.lastAttendedDate.strftime('%d/%m/%Y')
+    dateofremovedfromrolls = tcapplication.dateofremovedfromrolls.strftime('%d/%m/%Y')
     dobinwords = Paragraph (
         (datofbirth + " " 
         + num2words.num2words(date,to='ordinal' ) + " " 
@@ -268,23 +308,29 @@ def  prepareTC(pk):
     Other backward Caste scheduled tribes""",sample_style_sheet['Normal']),student.category),
     ("Date of Birth according to admission Register", dobinwords),
     ("Class to which the pupil was last enrolled",lastclass),
-    ("Date of Admission or promotion to that class",tcapplication.promotionDate),
+    ("Date of Admission or promotion to that class",promotionDate),
     ("Whether qualified for promotion to a higher standard",tcapplication.promotedtoHigherClass),
     ("Whether the pupil has paid all the fee due to the institution",tcapplication.duesCleared),
     ("Whether the pupil was in receipt of fee concession",tcapplication.fee_concession),
-    ("Date of pupil's last attendance",tcapplication.lastAttendedDate),
-    ("Date on which the name was removed from the rolls",tcapplication.dateofremovedfromrolls),
+    ("Date of pupil's last attendance",lastAttendedDate),
+    ("Date on which the name was removed from the rolls",dateofremovedfromrolls),
     ("No of working days up to the date",tcapplication.totalWorkingDay),
     ("No.of working days the pupil attended",tcapplication.attendance),
-    ("Date of application for the certificate",tcapplication.dateofApplication),
-    ("Date of issue of the certificate",tcapplication.dateofIssue),
+    ("Date of application for the certificate",dateofApplication),
+    ("Date of issue of the certificate",dateofissue),
     ("Institution to which the pupil intends proceeding",tcapplication.proceedingInstitution),
     ("Prepared by (Section Clerk - Syam Kumar P)",""),
     ("Verified by (Junior Superintendent - Mohandas T)",""),
-    ("Date :",""),
-    ("Place: Palakkad","")
+    (Paragraph ("Date : " +dateofissue +"<br/>Place: Palakkad",sample_style_sheet['Normal']), "" )
+    #("Place: Palakkad","")
     ]
     printtable_in_doc(elements,tcdata)
+
+    student.conduct = tcapplication.conduct
+    student.lastAttendedDate = tcapplication.lastAttendedDate
+    student.reasonforLeaving = tcapplication.reasonforLeaving
+    print_conductCertificate(elements,student)
+
     doc.build(elements)
     return response
 
