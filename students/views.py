@@ -7,7 +7,7 @@ from .forms import StudentEditForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from tc.models import TcApplication
-
+from django.db.models import Q
 # Create your views here.
 #@login_required
 class AllStudents(View):
@@ -24,8 +24,11 @@ class AllStudents(View):
 		}
 		filter_criteria = {}
 		if 'a_number'in request.GET and request.GET['a_number'] != None and request.GET['a_number'] != '':
-			filter_criteria['admission_number'] = request.GET['a_number']
-		students_objs = Student.objects.filter(**filter_criteria).order_by('admission_number')
+			searchkey= request.GET['a_number']
+			students_objs = Student.objects.filter( Q (name__icontains=searchkey) | Q(admission_number__icontains=searchkey ) ).order_by('admission_number')
+		else:
+			students_objs = Student.objects.all().order_by('admission_number')
+			
 		paginator = Paginator(students_objs,10)
 		page = request.GET.get('page')
 		students = paginator.get_page(page)
