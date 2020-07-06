@@ -129,10 +129,14 @@ class  CancelTcView(View):
 
 
 def application_all_view(request):
-    tcapplications = TcApplication.objects.all().order_by('id')
+    tcapplications = TcApplication.objects.filter(tc_issued = False).order_by('id').reverse()
     for tcapplication in tcapplications:
         tcapplication.activeclassroom = Classroom.objects.filter(student = tcapplication.student,active=True).first()
     return render(request, 'tc/tc_applications_all.html', {'tcapplications':tcapplications})
+    
+def tcissued_all_view(request):
+    tcapplications = TcApplication.objects.filter(tc_issued = True).order_by('tcYear','tcNumber').reverse()
+    return render(request, 'tc/tc_issued_all.html', {'tcapplications':tcapplications})
 
 def tc_application_by_department_view(request, pk):
     dept_name = Department.objects.get(pk=pk)
