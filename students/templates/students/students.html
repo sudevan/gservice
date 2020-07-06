@@ -1,11 +1,4 @@
 {% extends 'dashboard.html' %}
-{% block search_form %}
-  <form id="searchForm" class="form-inline" method="GET" action="{% url 'students:allstudents' %}">
-    <input class="form-control" type="search" placeholder="Admission Number" aria-label="Search" name="a_number">
-    <button id="searchBtn" class="btn lio-primary-bg my-2 my-sm-0" type="submit"><i
-    class="fas fa-search"></i></button>
-  </form>
-{% endblock %}
 {% block dashboard-body %}
 
 <h3 class="mb-3">{{label|default:'Students'}}</h3>
