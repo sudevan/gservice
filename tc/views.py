@@ -274,6 +274,10 @@ def  prepareTC(pk):
     print_heading(elements,heading)
     heading = """TRANSFER CERTIFICATE"""
     print_heading(elements,heading)
+    if (tcapplication.student.feeconcession == True):
+        feeconcession = 'Yes'
+    else:
+        feeconcession = 'No'
 
     #date of birth in words 
     datofbirth = student.date_of_birth.strftime("%d/%m/%Y")
@@ -310,8 +314,8 @@ def  prepareTC(pk):
     ("Class to which the pupil was last enrolled",lastclass),
     ("Date of Admission or promotion to that class",promotionDate),
     ("Whether qualified for promotion to a higher standard",tcapplication.promotedtoHigherClass),
-    ("Whether the pupil has paid all the fee due to the institution",tcapplication.duesCleared),
-    ("Whether the pupil was in receipt of fee concession",tcapplication.fee_concession),
+    ("Whether the pupil has paid all the fee due to the institution",'Yes'),
+    ("Whether the pupil was in receipt of fee concession",feeconcession),
     ("Date of pupil's last attendance",lastAttendedDate),
     ("Date on which the name was removed from the rolls",dateofremovedfromrolls),
     ("No of working days up to the date",tcapplication.totalWorkingDay),
