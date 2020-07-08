@@ -13,6 +13,8 @@ from reportlab.platypus import Paragraph
 from django.db.models import Max
 import num2words
 
+from reportlab.platypus import PageBreak
+
 from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.decorators import login_required
@@ -21,11 +23,14 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import datetime
 from django.db.models import Max
+import io
+from django.http import FileResponse
 
 from reportlab.lib.enums import TA_JUSTIFY,TA_LEFT,TA_CENTER,TA_RIGHT
 
-cm = 2.54
-rowhight = 10*cm
+from reportlab.lib.units import inch ,cm
+from reportlab.lib.pagesizes import A4
+rowhight = 1.5*cm
 from students.models import Student
 sample_style_sheet = getSampleStyleSheet()
 # Create your views here.
@@ -203,21 +208,17 @@ def print_heading(elements,heading):
     paragraph_1 = Paragraph(heading,title_style )
     elements.append(paragraph_1)
 
-class  printTCApplication(View):
-    def get(self,request,*args,**kwargs):
-        pk = kwargs.get('pk')
-#def tc_application_view(request,pk):
-        tcapplication = TcApplication.objects.get(id=pk)
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'filename=somefilename.pdf'
 
+def prepareTCApplication(tcapplication):
+        
         heading = ' GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD \
                             APPLICATION FOR ISSUING T.C , COURSE AND CONDUCT \
                             CERTIFICATE AND SSLC BOOK '
         elements = []
 
-        doc = SimpleDocTemplate(response)
+        
 
+ 
         print_heading(elements,heading)
         
         data = [
@@ -248,7 +249,6 @@ class  printTCApplication(View):
         ]
 
         printtable_in_doc(elements,data,style=2)
-
         data = [
             ("Date of pupil's last attendance at Institution",tcapplication.lastAttendedDate),
             ("Total No of working days",tcapplication.totalWorkingDay),
@@ -257,19 +257,50 @@ class  printTCApplication(View):
             ("Signature of tutor",""),
             ("Head of Section","")
         ]
-
         printtable_in_doc(elements,data)
+        return elements
+class  printTCApplication(View):
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+        tcapplication = TcApplication.objects.get(id=pk)
+        filename = str(tcapplication.student.admission_number) + "-application.pdf"
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer)
+
+        elements = prepareTCApplication(tcapplication)
+
         doc.build(elements)
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=False, filename=filename)
+class  printAllPendingApplications(View):
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+        tcapplications = TcApplication.objects.filter(tc_issued = False).order_by('student__department')
+        filename = "All-application.pdf"
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer)
+        elements =[]
+        for application in tcapplications:
+            elements.extend(prepareTCApplication(application))
+            elements.append(PageBreak())
 
-        return response
+        doc.build(elements)
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=False, filename=filename)
 
+def AllPageSetup(canvas, doc):
+    canvas.saveState()
+    filename='static/images/poly-logo.png'
+    A4
+    canvas.drawImage(filename,A4[0]/3 -2*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
 def  prepareTC(pk):
     elements=[]
     tcapplication = TcApplication.objects.get(id=pk)
     admission_number = tcapplication.student.admission_number
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename=somefilename.pdf'
-    doc = SimpleDocTemplate(response)
+    filename = str(tcapplication.student.admission_number) + "-application.pdf"
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer)
+
     doc.bottomMargin = 2*cm
     doc.topMargin = 8*cm
     student = Student.objects.filter(admission_number=admission_number)[0]
@@ -340,7 +371,8 @@ def  prepareTC(pk):
     print_conductCertificate(elements,student)
 
     doc.build(elements)
-    return response
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=False, filename=filename)
 
 class tcIssue(View):
     template_name = "tc/issue_tc.html"
