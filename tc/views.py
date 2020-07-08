@@ -275,7 +275,7 @@ class  printTCApplication(View):
 class  printAllPendingApplications(View):
     def get(self,request,*args,**kwargs):
         pk = kwargs.get('pk')
-        tcapplications = TcApplication.objects.filter(tc_issued = False).order_by('student__department')
+        tcapplications = TcApplication.objects.filter(tc_issued = False).order_by('student__department','student__name')
         filename = "All-application.pdf"
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer)
