@@ -151,8 +151,7 @@ def tc_application_by_department_view(request, pk):
         print(tcapplication.student,tcapplication.activeclassroom)
     return render(request, 'tc/tc_applications_by_department.html', tcapplications)
 
-def printtable_in_doc(elements,data,style=1):
-    
+def printtable_in_doc(elements,data,style=1):   
     if(style == 1):
         table = Table(data, colWidths=270 )
     else:
@@ -164,6 +163,7 @@ def printtable_in_doc(elements,data,style=1):
     ('TOPPADDING',(0,0),(-1,-1),5),
     ('SPAN',(-2,-1),(-1,-1)),
     ('VALIGN', (0, 0), (1, 0), 'MIDDLE'),
+    ('FONTSIZE',(0,0),(-1,-1),11),
     ])
     table.setStyle(tablestyle)
     elements.append(table  )
@@ -171,7 +171,7 @@ def print_conductCertificate(elements,student):
     conductstyle  = ParagraphStyle(
    'conduct',
     parent=sample_style_sheet['Normal'],
-    fontSize=11,
+    fontSize=12,
     leading=14,
     alignment = TA_JUSTIFY,)
     heading = 'COURSE AND CONDUCT CERTIFICATE'
@@ -215,10 +215,6 @@ def prepareTCApplication(tcapplication):
                             APPLICATION FOR ISSUING T.C , COURSE AND CONDUCT \
                             CERTIFICATE AND SSLC BOOK '
         elements = []
-
-        
-
- 
         print_heading(elements,heading)
         
         data = [
@@ -269,7 +265,7 @@ class  printTCApplication(View):
 
         elements = prepareTCApplication(tcapplication)
 
-        doc.build(elements)
+        doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=False, filename=filename)
 class  printAllPendingApplications(View):
@@ -283,16 +279,15 @@ class  printAllPendingApplications(View):
         for application in tcapplications:
             elements.extend(prepareTCApplication(application))
             elements.append(PageBreak())
-
-        doc.build(elements)
+        doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=False, filename=filename)
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    filename='static/images/poly-logo.png'
-    A4
-    canvas.drawImage(filename,A4[0]/3 -2*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
+    filename='static/images/poly-logo-2.png'
+    canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
+    canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
     tcapplication = TcApplication.objects.get(id=pk)
@@ -301,8 +296,8 @@ def  prepareTC(pk):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer)
 
-    doc.bottomMargin = 2*cm
-    doc.topMargin = 8*cm
+    doc.bottomMargin = .5*cm
+    doc.topMargin = .75*cm
     student = Student.objects.filter(admission_number=admission_number)[0]
     heading = """GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD"""
            
@@ -370,7 +365,7 @@ def  prepareTC(pk):
     student.reasonforLeaving = tcapplication.reasonforLeaving
     print_conductCertificate(elements,student)
 
-    doc.build(elements)
+    doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=False, filename=filename)
 
