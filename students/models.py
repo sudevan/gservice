@@ -29,7 +29,7 @@ class Student(models.Model):
     email = models.EmailField(blank=True, null=True)
     date_of_join = models.DateField(default='1998-01-01')
     religion = models.CharField(max_length=20,null=True)
-    community = models.CharField(max_length=20,null=True)
+    community = models.CharField(max_length=50,null=True)
     classroom = models.ManyToManyField(Classroom,blank=True)
     address = models.TextField(null=True)
     category = models.CharField(max_length = 30,null=True) 
