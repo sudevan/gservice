@@ -34,6 +34,13 @@ rowhight = 1.5*cm
 from students.models import Student
 sample_style_sheet = getSampleStyleSheet()
 # Create your views here.
+paragraphstyle  = ParagraphStyle(
+   'conduct',
+    parent=sample_style_sheet['Normal'],
+    fontSize=11,
+    leading=14,
+    alignment = TA_JUSTIFY,)
+   
 #@login_required
 class  ApplyTcView(View):
     template_name = 'tc/apply_tc.html'
@@ -285,7 +292,7 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    filename='static/images/poly-logo-2.png'
+    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
     canvas.restoreState()
 def  prepareTC(pk):
@@ -339,12 +346,12 @@ def  prepareTC(pk):
     (Paragraph ("""Whether the candidate belongs to scheduled castes or
     scheduled tribes or other backward communities or whether
     he/or she converted from scheduled castes or
-    Other backward Caste scheduled tribes""",sample_style_sheet['Normal']),student.category),
+    Other backward Caste scheduled tribes""",paragraphstyle),student.category),
     ("Date of Birth according to admission Register", dobinwords),
     ("Class to which the pupil was last enrolled",lastclass),
     ("Date of Admission or promotion to that class",promotionDate),
     ("Whether qualified for promotion to a higher standard",tcapplication.promotedtoHigherClass),
-    ("Whether the pupil has paid all the fee due to the institution",'Yes'),
+    (Paragraph("Whether the pupil has paid all the fee due to the institution",sample_style_sheet['Normal']),'Yes'),
     ("Whether the pupil was in receipt of fee concession",feeconcession),
     ("Date of pupil's last attendance",lastAttendedDate),
     ("Date on which the name was removed from the rolls",dateofremovedfromrolls),
