@@ -270,7 +270,8 @@ class  printTCApplication(View):
         filename = str(tcapplication.student.admission_number) + "-application.pdf"
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer)
-
+        
+        doc.mytype="application"
         elements = prepareTCApplication(tcapplication)
 
         doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
@@ -304,8 +305,9 @@ def AllPageSetup(canvas, doc):
     canvas.roundRect(margin, margin, A4[0]-margin*2, A4[1]-margin*2, 1*cm, fill=0)
 
     #printing principal tag in TC and CC, sicne its table style right alignment was difficult
-    canvas.drawRightString(A4[0] - 3*cm , 7.5*cm , "Principal")
-    canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
+    if( doc.mytype == "tc"):
+        canvas.drawRightString(A4[0] - 3*cm , 7*cm , "Principal")
+        canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
     canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
@@ -317,6 +319,7 @@ def  prepareTC(pk):
 
     doc.bottomMargin = .5*cm
     doc.topMargin = .75*cm
+    doc.mytype="tc"
     student = Student.objects.filter(admission_number=admission_number)[0]
     heading = """GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD"""
            
