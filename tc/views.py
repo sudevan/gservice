@@ -12,6 +12,7 @@ from admin_tools.models import Classroom
 from reportlab.platypus import Paragraph
 from django.db.models import Max
 import num2words
+from django.templatetags.static import static
 
 from reportlab.platypus import PageBreak
 
@@ -189,9 +190,9 @@ def print_conductCertificate(elements,student):
     lastYear = student.lastAttendedDate.strftime("%Y")
     print (student.reasonforLeaving)
     if student.reasonforLeaving == "Course Completed" :
-        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution in "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + " and he/she completed his/her 3 year diploma programme of study in "+lastMonth + " " + lastYear +". The medium of the entire programme was English. <br/><br/> During the course of study his/her character and conduct were found <b> Good </b>",conductstyle )]
+        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution of "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + " and he/she completed his/her 3 year diploma programme of study in "+lastMonth + " " + lastYear +". The medium of the entire programme was English. <br/><br/> During the course of study his/her character and conduct were found <b> Good </b> <br/><br/> Place : Palakkad<br/> Date : "+student.dateofissue ,conductstyle )]
     else:
-        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution in "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + ".<br/><br/> During the course of study his/her character and conduct were found <b> Good </b>",conductstyle )]
+        data = [ Paragraph ("Certified that Shri/Kumari <b>"+student.name +"</b>  was a student in this institution of "+ student.department.name +" department from " + date_of_join + " to "+ lastAttendedDate + ".<br/><br/> During the course of study his/her character and conduct were found <b> Good </b> <br/> Place : Palakkad <br/> Date : "+student.dateofissue,conductstyle )]
     data = [data]
 
     table = Table(data, colWidths=270*2) 
@@ -199,7 +200,7 @@ def print_conductCertificate(elements,student):
     tablestyle =   TableStyle([
     ('GRID', (0,0), (-1,-1), 0.25, colors.black),
     ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-    ('BOTTOMPADDING',(0,0),(-1,-1),75),
+    ('BOTTOMPADDING',(0,0),(-1,-1),20),
     ('TOPPADDING',(0,0),(-1,-1),5),
     ('FONTSIZE',(0,0),(-1,-1),20),
     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -293,7 +294,18 @@ class  printAllPendingApplications(View):
 def AllPageSetup(canvas, doc):
     canvas.saveState()
     filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    url = static('images/poly-logo-2.png')
+    print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
+    #canvas.roundRect(x, y, width, height, radius, stroke=1, fill=0) 
+    margin = .2 *cm
+    canvas.roundRect(margin, margin, A4[0]-margin*2, A4[1]-margin*2, 1*cm, fill=0)
+    margin = .2 *cm + .05*cm
+    canvas.roundRect(margin, margin, A4[0]-margin*2, A4[1]-margin*2, 1*cm, fill=0)
+
+    #printing principal tag in TC and CC, sicne its table style right alignment was difficult
+    canvas.drawRightString(A4[0] - 3*cm , 7.5*cm , "Principal")
+    canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
     canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
@@ -301,7 +313,7 @@ def  prepareTC(pk):
     admission_number = tcapplication.student.admission_number
     filename = str(tcapplication.student.admission_number) + "-application.pdf"
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer)
+    doc = SimpleDocTemplate(buffer,pagesize=A4)
 
     doc.bottomMargin = .5*cm
     doc.topMargin = .75*cm
@@ -362,7 +374,7 @@ def  prepareTC(pk):
     ("Institution to which the pupil intends proceeding",tcapplication.proceedingInstitution),
     ("Prepared by (Section Clerk - Syam Kumar P)",""),
     ("Verified by (Junior Superintendent - Mohandas T)",""),
-    (Paragraph ("Date : " +dateofissue +"<br/>Place: Palakkad",sample_style_sheet['Normal']), "" )
+    (Paragraph ("Date : " +dateofissue +"<br/>Place: Palakkad ",sample_style_sheet['Normal']), "" )
     #("Place: Palakkad","")
     ]
     printtable_in_doc(elements,tcdata)
@@ -370,6 +382,7 @@ def  prepareTC(pk):
     student.conduct = tcapplication.conduct
     student.lastAttendedDate = tcapplication.lastAttendedDate
     student.reasonforLeaving = tcapplication.reasonforLeaving
+    student.dateofissue = dateofissue
     print_conductCertificate(elements,student)
 
     doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
