@@ -224,15 +224,15 @@ def prepareTCApplication(tcapplication):
                             CERTIFICATE AND SSLC BOOK '
         elements = []
         print_heading(elements,heading)
-        
+        periodofstudy = tcapplication.student.date_of_join.strftime("%d/%m/%Y") + " to "+tcapplication.lastAttendedDate.strftime("%d/%m/%Y")
         data = [
             ('Application No',str(tcapplication.tc_application_Number) + " / "+ str(tcapplication.tc_application_Year) ),
             ('Department',tcapplication.student.department.name),
             ('Last enrolled class',tcapplication.lastclass),
             ('Admission No',tcapplication.student.admission_number),
             ('Name of the student',tcapplication.student.name),
-            ('Year Of Studies',""),
-            ('Date of birth',tcapplication.student.date_of_birth),
+            ('Year Of Studies',periodofstudy),
+            ('Date of birth',tcapplication.student.date_of_birth.strftime("%d/%m/%Y")),
             ('Whether the pupil was in receipt of fee concession',tcapplication.student.feeconcession),
             ('Reason for leaving',tcapplication.reasonforLeaving),
             ('Signature of the applicant with date',"")
@@ -254,10 +254,10 @@ def prepareTCApplication(tcapplication):
 
         printtable_in_doc(elements,data,style=2)
         data = [
-            ("Date of pupil's last attendance at Institution",tcapplication.lastAttendedDate),
+            ("Date of pupil's last attendance at Institution",tcapplication.lastAttendedDate.strftime("%d/%m/%Y")),
             ("Total No of working days",tcapplication.totalWorkingDay),
             ("No.of working days the pupil attended",tcapplication.attendance),
-            ("Date of application",tcapplication.dateofApplication),
+            ("Date of application",tcapplication.dateofApplication.strftime("%d/%m/%Y")),
             ("Signature of tutor",""),
             ("Head of Section","")
         ]
@@ -295,6 +295,7 @@ class  printAllPendingApplications(View):
 def AllPageSetup(canvas, doc):
     canvas.saveState()
     filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    #filename= 'static/images/poly-logo-2.png'
     url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
