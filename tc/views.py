@@ -231,7 +231,7 @@ def prepareTCApplication(tcapplication):
             ('Last enrolled class',tcapplication.lastclass),
             ('Admission No',tcapplication.student.admission_number),
             ('Name of the student',tcapplication.student.name),
-            ('Year Of Studies',periodofstudy),
+            ('Period Of Study',periodofstudy),
             ('Date of birth',tcapplication.student.date_of_birth.strftime("%d/%m/%Y")),
             ('Whether the pupil was in receipt of fee concession',tcapplication.student.feeconcession),
             ('Reason for leaving',tcapplication.reasonforLeaving),
