@@ -278,7 +278,7 @@ class  printTCApplication(View):
         
         doc.mytype="application"
         elements = prepareTCApplication(tcapplication)
-
+        doc.topMargin = 1*cm
         doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=False, filename=filename)
@@ -289,6 +289,7 @@ class  printAllPendingApplications(View):
         filename = "All-application.pdf"
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer)
+        doc.topMargin = 1*cm
         elements =[]
         for application in tcapplications:
             elements.extend(prepareTCApplication(application))
@@ -299,8 +300,8 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    #filename= 'static/images/poly-logo-2.png'
+    #filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    filename= 'static/images/poly-logo-2.png'
     url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
@@ -315,6 +316,8 @@ def AllPageSetup(canvas, doc):
         if( doc.mytype == "tc"):
             canvas.drawRightString(A4[0] - 3*cm , 7*cm , "Principal")
             canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
+            
+
     canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
