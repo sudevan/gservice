@@ -305,9 +305,10 @@ def AllPageSetup(canvas, doc):
     canvas.roundRect(margin, margin, A4[0]-margin*2, A4[1]-margin*2, 1*cm, fill=0)
 
     #printing principal tag in TC and CC, sicne its table style right alignment was difficult
-    if( doc.mytype == "tc"):
-        canvas.drawRightString(A4[0] - 3*cm , 7*cm , "Principal")
-        canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
+    if hasattr(doc,"mytype"):
+        if( doc.mytype == "tc"):
+            canvas.drawRightString(A4[0] - 3*cm , 7*cm , "Principal")
+            canvas.drawRightString(A4[0] - 3*cm , 2 *cm , "Principal")
     canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
