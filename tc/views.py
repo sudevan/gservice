@@ -219,12 +219,17 @@ def print_heading(elements,heading):
 
 def prepareTCApplication(tcapplication):
         
-        heading = ' GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD \
+        heading = ' GOVERNMENT POLYTECHNIC COLLEGE, PALAKKAD <br/>\
                             APPLICATION FOR ISSUING T.C , COURSE AND CONDUCT \
                             CERTIFICATE AND SSLC BOOK '
         elements = []
         print_heading(elements,heading)
         periodofstudy = tcapplication.student.date_of_join.strftime("%d/%m/%Y") + " to "+tcapplication.lastAttendedDate.strftime("%d/%m/%Y")
+        if tcapplication.student.feeconcession == True:
+            feeconcession = "Yes"
+        else:
+            feeconcession = "No"
+        
         data = [
             ('Application No',str(tcapplication.tc_application_Number) + " / "+ str(tcapplication.tc_application_Year) ),
             ('Department',tcapplication.student.department.name),
@@ -233,7 +238,7 @@ def prepareTCApplication(tcapplication):
             ('Name of the student',tcapplication.student.name),
             ('Period Of Study',periodofstudy),
             ('Date of birth',tcapplication.student.date_of_birth.strftime("%d/%m/%Y")),
-            ('Whether the pupil was in receipt of fee concession',tcapplication.student.feeconcession),
+            ('Whether the pupil was in receipt of fee concession',feeconcession),
             ('Reason for leaving',tcapplication.reasonforLeaving),
             ('Signature of the applicant with date',"")
         ]
@@ -294,8 +299,8 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    #filename= 'static/images/poly-logo-2.png'
+    #filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    filename= 'static/images/poly-logo-2.png'
     url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
