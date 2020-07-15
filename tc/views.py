@@ -299,8 +299,8 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    #filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    filename= 'static/images/poly-logo-2.png'
+    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    #filename= 'static/images/poly-logo-2.png'
     url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
