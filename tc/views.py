@@ -350,6 +350,7 @@ def  prepareTC(pk):
     dateofApplication = tcapplication.dateofApplication.strftime('%d/%m/%Y')
     promotionDate = tcapplication.promotionDate.strftime('%d/%m/%Y')
     lastAttendedDate = tcapplication.lastAttendedDate.strftime('%d/%m/%Y')
+    tcapplication.dateofremovedfromrolls = tcapplication.lastAttendedDate
     dateofremovedfromrolls = tcapplication.dateofremovedfromrolls.strftime('%d/%m/%Y')
     dobinwords = Paragraph (
         (datofbirth + " " 
