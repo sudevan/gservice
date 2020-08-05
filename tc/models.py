@@ -10,6 +10,7 @@ leavincchoices = (
     ('Course discontinued','Course discontinued'),
     ('Got Another Allotment','Got Another Allotment'),
     ('Course Completed','Course Completed'),
+    ('institution Transfer','Institution Transfer'),
 )
 promotedchoice=(
     ('Yes','yes'),
