@@ -390,7 +390,7 @@ def  prepareTC(pk):
     ("Date of issue of the certificate",dateofissue),
     ("Institution to which the pupil intends proceeding",tcapplication.proceedingInstitution),
     ("Prepared by (Section Clerk - Syam Kumar P)",""),
-    ("Verified by (Junior Superintendent - Mohandas T)",""),
+    ("Verified by (Senior Superintendent - Pradeep M)",""),
     (Paragraph ("Date : " +dateofissue +"<br/>Place: Palakkad ",sample_style_sheet['Normal']), "" )
     #("Place: Palakkad","")
     ]
