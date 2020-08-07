@@ -31,7 +31,7 @@ from reportlab.lib.enums import TA_JUSTIFY,TA_LEFT,TA_CENTER,TA_RIGHT
 
 from reportlab.lib.units import inch ,cm
 from reportlab.lib.pagesizes import A4
-rowhight = 1.5*cm
+rowhight = 1.4*cm
 from students.models import Student
 sample_style_sheet = getSampleStyleSheet()
 # Create your views here.
@@ -169,7 +169,7 @@ def printtable_in_doc(elements,data,style=1):
     ('BOX', (0,0), (-1,-1), 0.25, colors.black),
     ('BOTTOMPADDING',(0,0),(-1,-1),5),
     ('TOPPADDING',(0,0),(-1,-1),5),
-    ('SPAN',(-2,-1),(-1,-1)),
+    #('SPAN',(-2,-1),(-1,-1)),
     ('VALIGN', (0, 0), (1, 0), 'MIDDLE'),
     ('FONTSIZE',(0,0),(-1,-1),11),
     ])
@@ -236,8 +236,11 @@ def prepareTCApplication(tcapplication):
             ('Last enrolled class',tcapplication.lastclass),
             ('Admission No',tcapplication.student.admission_number),
             ('Name of the student',tcapplication.student.name),
+            ("Name of Guardian",
+                tcapplication.student.guardian+ ","+ tcapplication.student.guardian_relation),
             ('Period Of Study',periodofstudy),
             ('Date of birth',tcapplication.student.date_of_birth.strftime("%d/%m/%Y")),
+            ("Religion and Community", tcapplication.student.religion +","+tcapplication.student.community),
             ('Whether the pupil was in receipt of fee concession',feeconcession),
             ('Reason for leaving',tcapplication.reasonforLeaving),
             ('Signature of the applicant with date',"")
