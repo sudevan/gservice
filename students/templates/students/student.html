@@ -11,16 +11,18 @@
         {% if tc_exists is False %}
             {% comment %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tc:apply_tc' tc_application.id %}">Aplly TC</a>
+                <a class="nav-link" href="{% url 'tc:apply_tc' student.id %}">Aplly TC</a>
             </li>
             {% endcomment %}
         {% else %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tc:edit_tc' tc_application.id %}">Edit TC</a>
+                <a class="nav-link" href="{% url 'tc:edit_tc' student.id %}">Edit TC</a>
             </li>
+            <!--
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'tc:cancel_tc' tc_application.id %}">Cancel TC</a>
             </li>
+            -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'tc:application_view' tc_application.id %}" target="_blank">Print Application</a>
             </li>
