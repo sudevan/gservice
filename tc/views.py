@@ -63,9 +63,10 @@ class  ApplyTcView(View):
 
     def post(self,request,*args,**kwargs):
         if 'apply' in request.POST and request.POST['apply'] != '':
-            application_id = kwargs.get('pk')
+            student_id = kwargs.get('pk')
             form = TcApplicationForm(request.POST)
-            instance = TcApplication.objects.filter(pk=application_id).first()
+            student = Student.objects.filter(pk = primary_key).first()
+            instance = TcApplication.objects.filter(student=student).first()
             
             #a new entry
             if instance == None:
