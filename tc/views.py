@@ -53,7 +53,8 @@ class  ApplyTcView(View):
             form = TcApplicationForm()
         else:
             primary_key = kwargs.get('pk')
-            instance = TcApplication.objects.filter(pk=primary_key).first()
+            student = Student.objects.filter(pk = primary_key).first()
+            instance = TcApplication.objects.filter(student=student).first()
             if instance:
                 k_args['instance'] = instance
             form = TcApplicationForm(**k_args)
