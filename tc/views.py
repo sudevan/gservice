@@ -59,6 +59,7 @@ class  ApplyTcView(View):
                 k_args['instance'] = instance
             form = TcApplicationForm(**k_args)
         context['form'] = form
+        context['student'] = student
         return render(request,self.template_name,context)
 
     def post(self,request,*args,**kwargs):
