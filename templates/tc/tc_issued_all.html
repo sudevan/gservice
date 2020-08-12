@@ -30,8 +30,8 @@
               {{ tcapplication.student.department}}
           </th>
           <th scope="row">
-            <a href="{%url 'tc:tc_print_view' pk=tcapplication.id %}" class="btn lio-primary-bg text-light" target="_blank">Print TC</a>
-            <a href="{%url 'tc:cancel_tc' pk=tcapplication.id %}" class="btn lio-primary-bg text-light" onclick="return confirm('Are you sure to delete?')" >Delete</a>
+            <a href="{%url 'tc:tc_print_view' pk=tcapplication.student.id %}" class="btn lio-primary-bg text-light" target="_blank">Print TC</a>
+            <a href="{%url 'tc:cancel_tc' pk=tcapplication.student.id %}" class="btn lio-primary-bg text-light" onclick="return confirm('Are you sure to delete?')" >Delete</a>
           </th>
         </tr>
         {% endfor %}

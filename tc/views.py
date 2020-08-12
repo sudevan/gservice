@@ -64,11 +64,10 @@ class  ApplyTcView(View):
 
     def post(self,request,*args,**kwargs):
         if 'apply' in request.POST and request.POST['apply'] != '':
-            student_id = kwargs.get('pk')
             form = TcApplicationForm(request.POST)
+            student_id = kwargs.get('pk')
             student = Student.objects.filter(pk = student_id).first()
             instance = TcApplication.objects.filter(student=student).first()
-            
             #a new entry
             if instance == None:
                 if form.is_valid():
@@ -111,8 +110,9 @@ class  EditTcView(View):
         context = {}
         initial = {}
         k_args = {}
-        primary_key = kwargs.get('pk')
-        instance = TcApplication.objects.filter(pk=primary_key).first()
+        student_id = kwargs.get('pk')
+        student = Student.objects.filter(pk = student_id).first()
+        instance = TcApplication.objects.filter(student=student).first()
         if instance:
             k_args['instance'] = instance
         form = TcApplicationForm(**k_args)
@@ -121,8 +121,9 @@ class  EditTcView(View):
     def post(self,request,*args,**kwargs):
         if 'apply' in request.POST and request.POST['apply'] != '':
             k_args = {}
-            primary_key = kwargs.get('pk')
-            instance = TcApplication.objects.filter(pk=primary_key).first()
+            student_id = kwargs.get('pk')
+            student = Student.objects.filter(pk = student_id).first()
+            instance = TcApplication.objects.filter(student=student).first()
             if instance:
                 k_args['instance'] = instance
             form = TcApplicationForm(request.POST,**k_args)
@@ -139,8 +140,9 @@ class  EditTcView(View):
 class  CancelTcView(View):
     template_name = 'tc/apply_tc.html'
     def get(self,request,*args,**kwargs):
-        primary_key = kwargs.get('pk')
-        TcApplication.objects.filter(pk=primary_key).delete() 
+        student_id = kwargs.get('pk')
+        student = Student.objects.filter(pk = student_id).first()
+        TcApplication.objects.filter(student=student).delete() 
         return HttpResponseRedirect(reverse('tc:all_tc'))
 
 
@@ -276,8 +278,9 @@ def prepareTCApplication(tcapplication):
         return elements
 class  printTCApplication(View):
     def get(self,request,*args,**kwargs):
-        pk = kwargs.get('pk')
-        tcapplication = TcApplication.objects.get(id=pk)
+        student_id = kwargs.get('pk')
+        student = Student.objects.filter(pk = student_id).first()
+        tcapplication = TcApplication.objects.filter(student=student).first()
         filename = str(tcapplication.student.admission_number) + "-application.pdf"
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer)
@@ -306,8 +309,8 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    #filename= 'static/images/poly-logo-2.png'
+    #filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    filename= 'static/images/poly-logo-2.png'
     url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
@@ -327,7 +330,9 @@ def AllPageSetup(canvas, doc):
     canvas.restoreState()
 def  prepareTC(pk):
     elements=[]
-    tcapplication = TcApplication.objects.get(id=pk)
+    student_id = pk
+    student = Student.objects.filter(pk = student_id).first()
+    tcapplication = TcApplication.objects.filter(student=student).first()
     admission_number = tcapplication.student.admission_number
     filename = str(tcapplication.student.admission_number) + "-application.pdf"
     buffer = io.BytesIO()
@@ -418,8 +423,9 @@ class tcIssue(View):
         context = {}
         initial = {}
         k_args = {}
-        primary_key = kwargs.get('pk')
-        instance = TcApplication.objects.filter(pk=primary_key).first()
+        student_id = kwargs.get('pk')
+        student = Student.objects.filter(pk = student_id).first()
+        instance = TcApplication.objects.filter(student=student).first()
 
         if instance.tcNumber == None: 
             current_year = datetime.now().year
@@ -439,8 +445,9 @@ class tcIssue(View):
         return render(request,self.template_name,context)
  #       return response
     def post(self,request,*args,**kwargs):
-        primary_key = kwargs.get('pk')
-        instance = TcApplication.objects.filter(pk=primary_key).first()
+        student_id = kwargs.get('pk')
+        student = Student.objects.filter(pk = student_id).first()
+        instance = TcApplication.objects.filter(student=student).first()
         instance.tcNumber = request.POST.get('tcNumber')
         instance.tcYear = request.POST.get('tcYear')
         instance.tc_issued = True

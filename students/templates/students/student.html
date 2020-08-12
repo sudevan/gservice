@@ -24,15 +24,15 @@
             </li>
             -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tc:application_view' tc_application.id %}" target="_blank">Print Application</a>
+                <a class="nav-link" href="{% url 'tc:application_view' student.id %}" target="_blank">Print Application</a>
             </li>
             {% if not tc_application.tc_issued %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tc:tc_issue_view' tc_application.id %}" >Issue TC</a>
+                <a class="nav-link" href="{% url 'tc:tc_issue_view' student.id %}" >Issue TC</a>
             </li>
             {% else %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'tc:tc_print_view' tc_application.id %}" target="_blank">Print TC</a>
+                <a class="nav-link" href="{% url 'tc:tc_print_view' student.id %}" target="_blank">Print TC</a>
             </li>
             {% endif %}
         {% endif %}
