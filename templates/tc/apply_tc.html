@@ -9,6 +9,7 @@
   {% csrf_token %}
   {% include 'forms/form.html' %}
   {% include 'forms/buttons.html' with buttons=form.buttons %}
+  {% include 'students/student_info.html' %}
 </form>
 {% endblock %}
 {% block javascript %}
