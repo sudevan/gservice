@@ -65,7 +65,7 @@ class  ApplyTcView(View):
         if 'apply' in request.POST and request.POST['apply'] != '':
             student_id = kwargs.get('pk')
             form = TcApplicationForm(request.POST)
-            student = Student.objects.filter(pk = primary_key).first()
+            student = Student.objects.filter(pk = student_id).first()
             instance = TcApplication.objects.filter(student=student).first()
             
             #a new entry
@@ -80,7 +80,7 @@ class  ApplyTcView(View):
                         tcApplicationNumber +=1          
                     form.instance.tc_application_Number = tcApplicationNumber
                     form.instance.tc_application_Year = datetime.now().year
-                    student = Student.objects.filter(pk=application_id).first()
+                    student = Student.objects.filter(pk=student_id).first()
                     student_id = student.id
                     application = form.save(commit=False)
                     application.student = student
