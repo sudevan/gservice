@@ -287,10 +287,12 @@ class  printTCApplication(View):
         
         doc.mytype="application"
         elements = prepareTCApplication(tcapplication)
-        doc.topMargin = 1*cm
+        do
         doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=False, filename=filename)
+
+
 class  printAllPendingApplications(View):
     def get(self,request,*args,**kwargs):
         pk = kwargs.get('pk')
@@ -310,8 +312,8 @@ class  printAllPendingApplications(View):
 def AllPageSetup(canvas, doc):
     canvas.saveState()
     filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    #filename= './static/images/poly-logo-2.png'
-    url = static('static/images/poly-logo-2.png')
+    #filename= 'static/images/poly-logo-2.png'
+    url = static('images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
     #canvas.roundRect(x, y, width, height, radius, stroke=1, fill=0) 
@@ -328,19 +330,13 @@ def AllPageSetup(canvas, doc):
             
 
     canvas.restoreState()
-def  prepareTC(pk):
-    elements=[]
-    student_id = pk
-    student = Student.objects.filter(pk = student_id).first()
-    tcapplication = TcApplication.objects.filter(student=student).first()
+
+def  prepareTC(tcapplication):
+    elements = []
     admission_number = tcapplication.student.admission_number
     filename = str(tcapplication.student.admission_number) + "-application.pdf"
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer,pagesize=A4)
 
-    doc.bottomMargin = .5*cm
-    doc.topMargin = .75*cm
-    doc.mytype="tc"
     student = Student.objects.filter(admission_number=admission_number)[0]
     heading = """GOVERNMENT POLYTECHNIC COLLEGE PALAKKAD"""
            
@@ -409,10 +405,7 @@ def  prepareTC(pk):
     student.reasonforLeaving = tcapplication.reasonforLeaving
     student.dateofissue = dateofissue
     print_conductCertificate(elements,student)
-
-    doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
-    buffer.seek(0)
-    return FileResponse(buffer, as_attachment=False, filename=filename)
+    return elements
 
 class tcIssue(View):
     template_name = "tc/issue_tc.html"
@@ -447,15 +440,66 @@ class tcIssue(View):
     def post(self,request,*args,**kwargs):
         student_id = kwargs.get('pk')
         student = Student.objects.filter(pk = student_id).first()
-        instance = TcApplication.objects.filter(student=student).first()
-        instance.tcNumber = request.POST.get('tcNumber')
-        instance.tcYear = request.POST.get('tcYear')
-        instance.tc_issued = True
-        instance.save()
-        print(instance.student.name)
-        student_id  = instance.student.id
+        tcapplication = TcApplication.objects.filter(student=student).first()
+        
+        marktcIssued(tcapplication,request.POST.get('tcNumber'),request.POST.get('tcYear'))
+
+        student_id  = tcapplication.student.id
         return HttpResponseRedirect(reverse('students:student',args=(student_id,)))
+def getNextTCnumber():
+    current_year = datetime.now().year
+    tcNumber = TcApplication.objects.filter(tcYear= current_year).aggregate(Max ('tcNumber')) ['tcNumber__max']
+    if tcNumber == None:
+        tcNumber = 1
+    else:
+        tcNumber +=1
+    return tcNumber
+def marktcIssued(tcapplication,tcNumber=None,tcyear=None):
+    if tcNumber == None:
+        tcNumber = getNextTCnumber()
+        tcyear = datetime.now().year
+    if tcyear == None:
+        tcyear = datetime.now().year
+    tcapplication.tcNumber = tcNumber
+    tcapplication.tcYear = tcyear
+    tcapplication.tc_issued = True
+    tcapplication.save()
+    
 class printTC(View):
     def get(self,request,*args,**kwargs):
         pk = kwargs.get('pk')
-        return prepareTC(pk)
+        elements=[]
+        student_id = pk
+        student = Student.objects.filter(pk = student_id).first()
+        tcapplication = TcApplication.objects.filter(student=student).first()
+        filename = str(tcapplication.student.admission_number) + "-application.pdf"
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer)
+        doc.bottomMargin = .5*cm
+        doc.topMargin = .75*cm
+        doc.mytype="tc"
+        elements =  prepareTC(tcapplication)
+        doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=False, filename=filename)
+class  IssueprintAllPendingApplications(View):
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get('pk')
+        tcapplications = TcApplication.objects.filter(tc_issued = False,student__data_verified = True).order_by('student__admission_number')
+        filename = "All-TC.pdf"
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer)
+        doc.bottomMargin = .5*cm
+        doc.topMargin = .75*cm
+        doc.mytype="tc"
+        elements =[]
+        for application in tcapplications:
+            marktcIssued(application)
+            elements.extend(prepareTC(application))
+            elements.append(PageBreak())
+        doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=False, filename=filename)
+       
+
+        
