@@ -309,9 +309,9 @@ class  printAllPendingApplications(View):
 
 def AllPageSetup(canvas, doc):
     canvas.saveState()
-    #filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
-    filename= 'static/images/poly-logo-2.png'
-    url = static('images/poly-logo-2.png')
+    filename= '/var/www/gservice/staticfiles/images/poly-logo-2.png'
+    #filename= './static/images/poly-logo-2.png'
+    url = static('static/images/poly-logo-2.png')
     print("image url",url)
     canvas.drawImage(filename,A4[0]/3 -1.73*cm,A4[1]/3,width=A4[0]/2,height=A4[1]/2,mask='auto',preserveAspectRatio=True, anchor='c')
     #canvas.roundRect(x, y, width, height, radius, stroke=1, fill=0) 
@@ -398,7 +398,7 @@ def  prepareTC(pk):
     ("Date of issue of the certificate",dateofissue),
     ("Institution to which the pupil intends proceeding",tcapplication.proceedingInstitution),
     ("Prepared by (Section Clerk - Syam Kumar P)",""),
-    ("Verified by (Senior Superintendent - Pradeep M)",""),
+    ("Verified by (Junior Superintendent - Roy .M.J)",""),
     (Paragraph ("Date : " +dateofissue +"<br/>Place: Palakkad ",sample_style_sheet['Normal']), "" )
     #("Place: Palakkad","")
     ]
