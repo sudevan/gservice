@@ -287,7 +287,7 @@ class  printTCApplication(View):
         
         doc.mytype="application"
         elements = prepareTCApplication(tcapplication)
-        do
+        doc.topMargin = 1*cm
         doc.build(elements, onFirstPage=AllPageSetup, onLaterPages=AllPageSetup)
         buffer.seek(0)
         return FileResponse(buffer, as_attachment=False, filename=filename)
